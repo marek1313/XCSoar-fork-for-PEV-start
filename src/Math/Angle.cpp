@@ -84,7 +84,7 @@ Angle::AsDelta() const noexcept
 {
   assert(!isnan(value));
   assert(!isinf(value));
-  assert(fabs(value) < 100 * FullCircle().Native());
+
 
 #ifndef FIXED_MATH
   /* same workaround as in AsBearing() */
@@ -93,7 +93,12 @@ Angle::AsDelta() const noexcept
 #endif
 
   Angle retval(value);
-
+//instead of exception, when input is trash, return trash but properly calculated ;)
+  if(!(fabs(value) < 100 * FullCircle().Native())){
+  	double intP,fracP;
+  	fracP=modf(retval/FullCircle(),&intP);
+  	retval=FullCircle()*fracP;
+  }
   while (retval <= -HalfCircle())
     retval += FullCircle();
 
