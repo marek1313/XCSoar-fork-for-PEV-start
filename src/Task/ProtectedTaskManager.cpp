@@ -36,6 +36,14 @@ ProtectedTaskManager::SetPevStartTimeSpan(const TimeSpan &open_time_span) noexce
   lease->SetPevStartTimeSpan(open_time_span);
 }
 
+bool
+ProtectedTaskManager::SetPEV(const BrokenTime bt){
+  ExclusiveLease lease(*this);
+
+  return lease->SetPEV(bt);
+
+}
+
 const OrderedTaskSettings
 ProtectedTaskManager::GetOrderedTaskSettings() const noexcept
 {

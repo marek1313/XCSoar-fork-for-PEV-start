@@ -79,6 +79,8 @@ https://xcsoar.readthedocs.io/en/latest/input_events.html
 #include <algorithm>
 #include <limits>
 
+#include "LogFile.hpp"
+
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #endif
@@ -193,34 +195,32 @@ InputEvents::eventMarkLocation(const char *misc)
 void
 InputEvents::eventPilotEvent([[maybe_unused]] const char *misc)
 try {
-  // Configure start window
-  const OrderedTaskSettings &ots =
-    backend_components->protected_task_manager->GetOrderedTaskSettings();
-  const StartConstraints &constraints = ots.start_constraints;
+  
+  // Start time window based on PEV moved to task manager
+  //Inform task manager about PEV
+  const BrokenTime bt = BrokenDateTime::NowUTC();
+  
+    if (!backend_components->protected_task_manager->SetPEV(bt)){
+    	//message that no pev should be set;
+    	TCHAR TempAll[120];
 
-  const auto now = CommonInterface::Basic().time;
+    	_stprintf(TempAll, _T("Probably start window not open yet"));
 
-  // Note: pev_start_wait_time == 0 means window starts right away
-  TimeStamp new_start_ts( now.ToDuration() + constraints.pev_start_wait_time );
-  FineTime new_start(new_start_ts);
-
-  FineTime new_end = (constraints.pev_start_window.count() > 0) ?
-                     FineTime(new_start_ts + constraints.pev_start_window) :
-                     FineTime::Invalid();
-
-  const TimeSpan ts = TimeSpan(new_start, new_end);
-
-  backend_components->protected_task_manager->SetPevStartTimeSpan(ts);
+    	Message::AddMessage(_("PEV Should not be used."), TempAll);
+    }else{
+    	  if (backend_components->igc_logger)
+          backend_components->igc_logger->LogPilotEvent(CommonInterface::Basic());
+        if (backend_components->devices) {
+          MessageOperationEnvironment env;
+          backend_components->devices->PutPilotEvent(env);
+        }
+    }
 
   // Log pilot event
-  if (backend_components->igc_logger)
-    backend_components->igc_logger->LogPilotEvent(CommonInterface::Basic());
+ 
 
   // Let devices know the pilot event was pressed
-  if (backend_components->devices) {
-    MessageOperationEnvironment env;
-    backend_components->devices->PutPilotEvent(env);
-  }
+
 } catch (...) {
   ShowError(std::current_exception(), _("Logger Error"));
 }
