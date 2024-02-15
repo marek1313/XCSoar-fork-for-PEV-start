@@ -406,9 +406,11 @@ location=8
 mode=Nav1
 type=key
 data=0
-event=Setup Alternates
 event=Mode default
-label=Alternates$(CheckWaypointFile)
+event=StatusMessage Pilot event announced
+event=Logger note PEV
+event=PilotEvent
+label=Pilot Event Announce
 location=9
 
 # -------------
@@ -443,11 +445,9 @@ location=6
 mode=Nav2
 type=key
 data=8
+event=Setup Alternates
 event=Mode default
-event=StatusMessage Pilot event announced
-event=Logger note PEV
-event=PilotEvent
-label=Pilot Event Announce
+label=Alternates$(CheckWaypointFile)
 location=7
 
 mode=Nav2
@@ -954,6 +954,16 @@ event=Exit system
 event=Mode default
 label=Quit
 location=9
+
+#mode=Menu
+#type=key
+#data=0
+#event=Mode default
+#event=StatusMessage Pilot event announced
+#event=Logger note PEV
+#event=PilotEvent
+#label=Pilot Event Announce
+#location=5
 
 # ----------------------------------
 # mode=default.TA (ThermalAssistant)
