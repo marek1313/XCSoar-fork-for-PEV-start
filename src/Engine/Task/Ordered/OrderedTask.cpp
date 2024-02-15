@@ -27,6 +27,7 @@
 #include "Task/PathSolvers/TaskDijkstraMax.hpp"
 #include "Task/ObservationZones/ObservationZoneClient.hpp"
 #include "Task/ObservationZones/CylinderZone.hpp"
+#include "time/BrokenTime.hpp"
 
 /**
  * According to "FAI Sporting Code / Annex A to Section 3 - Gliding",
@@ -610,6 +611,88 @@ OrderedTask::UpdateIdle(const AircraftState &state,
 
   return retval;
 }
+
+
+void OrderedTask::UpdateAfterPEV(const AircraftState &state, BrokenTime bt) noexcept {
+
+	 pev_received=false;
+	 if (state.time.ToDuration().count()<0) {
+		 return;
+	 }
+
+      //BrokenTime bt = BrokenTime::FromSecondOfDay(state.time);
+      RoughTime new_start = RoughTime::FromSinceMidnight(state.time.ToDuration());
+      RoughTime new_end = RoughTime::Invalid();
+      OrderedTaskSettings &ots =
+          ordered_settings;
+      const StartConstraints &start = ots.start_constraints;
+      /*
+       * For this commit we only implement time based start constraints for PEV
+      if (start.score_pev){
+
+          // to be added confirmation dialog in case PEV events more often than configured time window
+          //ots.start_constraints.closed_substart_time_span = state.time+std::chrono::seconds(RoughTimeDelta::FromDuration(start.pev_start_window).AsSeconds());
+
+          stats.pev_based_advance_ready=true;
+
+          if (start.pev_start_wait_time.count() > 0) {
+                    auto t = std::chrono::duration_cast<std::chrono::minutes>(start.pev_start_wait_time);
+                    // Set start time to the next full minute after wait time.
+                    // This way we make sure wait time is passed before xcsoar opens the start.
+                    if (bt.second > 0)
+                      t += std::chrono::minutes{1};
+                    new_start = new_start + RoughTimeDelta::FromDuration(t);
+                  }
+          const RoughTimeSpan ts = RoughTimeSpan(new_start, new_end);
+
+          ots.start_constraints.open_time_span=ts;
+
+
+
+
+      }else
+      {
+        */
+        if (start.pev_start_wait_time.count() > 0) {
+          auto t = std::chrono::duration_cast<std::chrono::minutes>(start.pev_start_wait_time);
+          // Set start time to the next full minute after wait time.
+          // This way we make sure wait time is passed before xcsoar opens the start.
+          if (bt.second > 0)
+            t += std::chrono::minutes{1};
+          new_start = new_start + RoughTimeDelta::FromDuration(t);
+        }
+
+        if (start.pev_start_window.count() > 0) {
+          new_end = new_start + RoughTimeDelta::FromDuration(start.pev_start_window);
+        }
+        const RoughTimeSpan ts = RoughTimeSpan(new_start, new_end);
+
+        ots.start_constraints.open_time_span=ts;
+
+      /*
+        }
+       */
+}
+
+bool OrderedTask::SetPEV(const BrokenTime bt) {
+   //Use state time instead of system time in updating information related to PEV inside Task
+   if (!last_state_time.IsDefined())return false;
+
+  /* 
+   * In this commit we only introduce time constraints update 
+   
+ 	if (taskpoint_start){
+
+ 		  if ((taskpoint_start->GetScorePEV())&&!(ordered_settings.start_constraints.open_time_span.HasBegun(RoughTime{last_state_time})))
+ 		    // the start gate is not yet open when we left the OZ
+ 		    return false;
+ 	}
+  */
+ 	//return AbstractTask::SetPEV(bt);
+  	pev_received=true;
+  	pev_receive_time=bt;
+    return true;
+ };
 
 bool
 OrderedTask::UpdateSample(const AircraftState &state,

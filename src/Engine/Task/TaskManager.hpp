@@ -10,6 +10,7 @@
 #include "TaskBehaviour.hpp"
 #include "Waypoint/Ptr.hpp"
 #include "util/Compiler.h"
+#include "time/BrokenTime.hpp"
 
 #include <memory>
 
@@ -141,6 +142,12 @@ public:
    * @return True if successful
    */
   bool DoGoto(WaypointPtr &&wp) noexcept;
+
+  /**
+     * Sets Pilot Event In Task
+     *
+     */
+  bool SetPEV(const BrokenTime bt);
 
   /**
    * Updates internal state of task given new aircraft.

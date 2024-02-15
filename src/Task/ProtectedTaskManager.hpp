@@ -7,6 +7,7 @@
 #include "time/RoughTime.hpp"
 #include "Engine/Task/Unordered/AbortIntersectionTest.hpp"
 #include "Engine/Waypoint/Ptr.hpp"
+#include "time/BrokenTime.hpp"
 
 #include <memory>
 
@@ -52,6 +53,8 @@ public:
   const OrderedTaskSettings GetOrderedTaskSettings() const noexcept;
 
   void SetStartTimeSpan(const RoughTimeSpan &open_time_span) noexcept;
+
+  bool SetPEV(const BrokenTime bt);
 
   [[gnu::pure]]
   WaypointPtr GetActiveWaypoint() const noexcept;

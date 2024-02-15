@@ -693,9 +693,18 @@ protected:
                             DistanceStat &leg_remaining_effective,
                             const GlideResult &solution_remaining_total,
                             const GlideResult &solution_remaining_leg) noexcept override;
+
+// PEV update in task update cycle
+  void UpdateAfterPEV(const AircraftState &state, BrokenTime bt) noexcept override;
+
+
 protected:
   bool IsScored() const noexcept override;
 
 public:
   void AcceptTaskPointVisitor(TaskPointConstVisitor &visitor) const override;
+
+// Setting information about PEV input for next update cycle
+  bool SetPEV(const BrokenTime bt) override;
+
 };

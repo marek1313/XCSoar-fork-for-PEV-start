@@ -38,6 +38,14 @@ ProtectedTaskManager::SetStartTimeSpan(const RoughTimeSpan &open_time_span) noex
   lease->SetOrderedTaskSettings(otb);
 }
 
+bool
+ProtectedTaskManager::SetPEV(const BrokenTime bt){
+  ExclusiveLease lease(*this);
+
+  return lease->SetPEV(bt);
+
+}
+
 const OrderedTaskSettings
 ProtectedTaskManager::GetOrderedTaskSettings() const noexcept
 {

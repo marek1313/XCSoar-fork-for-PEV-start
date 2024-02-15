@@ -75,6 +75,8 @@ doc/html/advanced/input/ALL  http://xcsoar.sourceforge.net/advanced/input/
 #include <tchar.h>
 #include <algorithm>
 
+#include "LogFile.hpp"
+
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #endif
@@ -189,40 +191,32 @@ InputEvents::eventMarkLocation(const TCHAR *misc)
 void
 InputEvents::eventPilotEvent([[maybe_unused]] const TCHAR *misc)
 try {
-  // Configure start window
-  const OrderedTaskSettings &ots =
-    backend_components->protected_task_manager->GetOrderedTaskSettings();
-  const StartConstraints &start = ots.start_constraints;
-
+  
+  // Start time window based on PEV moved to task manager
+  //Inform task manager about PEV
   const BrokenTime bt = BrokenDateTime::NowUTC();
-  RoughTime new_start = RoughTime(bt.hour, bt.minute);
-  RoughTime new_end = RoughTime::Invalid();
+  
+    if (!backend_components->protected_task_manager->SetPEV(bt)){
+    	//message that no pev should be set;
+    	TCHAR TempAll[120];
 
-  if (start.pev_start_wait_time.count() > 0) {
-    auto t = std::chrono::duration_cast<std::chrono::minutes>(start.pev_start_wait_time);
-    // Set start time to the next full minute after wait time.
-    // This way we make sure wait time is passed before xcsoar opens the start.
-    if (bt.second > 0)
-      t += std::chrono::minutes{1};
-    new_start = new_start + RoughTimeDelta::FromDuration(t);
-  }
+    	_stprintf(TempAll, _T("Probably start window not open yet"));
 
-  if (start.pev_start_window.count() > 0) {
-    new_end = new_start + RoughTimeDelta::FromDuration(start.pev_start_window);
-  }
-  const RoughTimeSpan ts = RoughTimeSpan(new_start, new_end);
-
-  backend_components->protected_task_manager->SetStartTimeSpan(ts);
+    	Message::AddMessage(_("PEV Should not be used."), TempAll);
+    }else{
+    	  if (backend_components->igc_logger)
+          backend_components->igc_logger->LogPilotEvent(CommonInterface::Basic());
+        if (backend_components->devices) {
+          MessageOperationEnvironment env;
+          backend_components->devices->PutPilotEvent(env);
+        }
+    }
 
   // Log pilot event
-  if (backend_components->igc_logger)
-    backend_components->igc_logger->LogPilotEvent(CommonInterface::Basic());
+ 
 
   // Let devices know the pilot event was pressed
-  if (backend_components->devices) {
-    MessageOperationEnvironment env;
-    backend_components->devices->PutPilotEvent(env);
-  }
+
 } catch (...) {
   ShowError(std::current_exception(), _("Logger Error"));
 }
