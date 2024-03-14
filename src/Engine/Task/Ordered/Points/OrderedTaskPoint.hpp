@@ -283,7 +283,8 @@ protected:
                             const AircraftState &ref_last) const noexcept override;
 
   bool CheckExitTransition(const AircraftState &ref_now,
-                           const AircraftState &ref_last) const noexcept override {
+                                                    const AircraftState &ref_last,__attribute__ ((unused)) const bool pev_advance_ready) const noexcept override {
+                                                      
     return CheckEnterTransition(ref_last, ref_now);
   }
 };

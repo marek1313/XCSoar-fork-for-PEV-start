@@ -18,6 +18,7 @@ enum Controls {
   TASK_TYPE,
   MIN_TIME,
   START_REQUIRES_ARM,
+  START_SCORE_PEV,
   START_SCORE_EXIT,
   START_OPEN_TIME,
   START_CLOSE_TIME,
@@ -26,6 +27,7 @@ enum Controls {
   START_HEIGHT_REF,
   FINISH_MIN_HEIGHT,
   FINISH_HEIGHT_REF,
+  MAX_HEIGHT_LOSS,
   PEV_START_WAIT_TIME,
   PEV_START_WINDOW,
   FAI_FINISH_HEIGHT,
@@ -48,11 +50,18 @@ TaskPropertiesPanel::RefreshView()
   const bool aat_types = ftype == TaskFactoryType::AAT ||
     ftype == TaskFactoryType::MAT;
   bool fai_start_finish = p.finish_constraints.fai_finish;
+  bool score_pev = p.start_constraints.score_pev;
 
   SetRowVisible(MIN_TIME, aat_types);
   LoadValueDuration(MIN_TIME, p.aat_min_time);
 
   LoadValue(START_REQUIRES_ARM, p.start_constraints.require_arm);
+
+  SetRowVisible(START_SCORE_PEV, !fai_start_finish);
+  LoadValue(START_SCORE_PEV, score_pev&&(!fai_start_finish));
+
+  SetRowVisible(START_SCORE_EXIT, !score_pev);
+
   LoadValue(START_SCORE_EXIT, p.start_constraints.score_exit);
 
   LoadValue(START_OPEN_TIME, p.start_constraints.open_time_span.GetStart());
@@ -79,12 +88,16 @@ TaskPropertiesPanel::RefreshView()
   SetRowVisible(FAI_FINISH_HEIGHT, IsFai(ftype));
   LoadValue(FAI_FINISH_HEIGHT, fai_start_finish);
 
+  SetRowVisible(MAX_HEIGHT_LOSS, !fai_start_finish);
+  LoadValue(MAX_HEIGHT_LOSS, double(p.finish_constraints.max_height_loss),
+                    UnitGroup::ALTITUDE);
+
   LoadValueEnum(TASK_TYPE, ftype);
 
   SetRowVisible(PEV_START_WAIT_TIME, !fai_start_finish);
   LoadValueDuration(PEV_START_WAIT_TIME,
                     p.start_constraints.pev_start_wait_time);
-  SetRowVisible(PEV_START_WINDOW, !fai_start_finish);
+  SetRowVisible(PEV_START_WINDOW, !fai_start_finish&&!score_pev);
   LoadValueDuration(PEV_START_WINDOW,
                     p.start_constraints.pev_start_window);
 
@@ -109,6 +122,8 @@ TaskPropertiesPanel::ReadValues()
     changed = true;
 
   changed |= SaveValue(START_SCORE_EXIT, p.start_constraints.score_exit);
+
+  changed |= SaveValue(START_SCORE_PEV, p.start_constraints.score_pev);
 
   RoughTime new_open = p.start_constraints.open_time_span.GetStart();
   RoughTime new_close = p.start_constraints.open_time_span.GetEnd();
@@ -145,6 +160,13 @@ TaskPropertiesPanel::ReadValues()
   changed |= SaveValueEnum(FINISH_HEIGHT_REF,
                            p.finish_constraints.min_height_ref);
 
+  unsigned max_height_loss =
+        iround(Units::ToSysAltitude(GetValueFloat(MAX_HEIGHT_LOSS)));
+      if (max_height_loss != p.finish_constraints.max_height_loss) {
+        p.finish_constraints.max_height_loss = max_height_loss;
+        changed = true;
+      }
+
   changed |= SaveValue(PEV_START_WAIT_TIME,
                        p.start_constraints.pev_start_wait_time);
   changed |= SaveValue(PEV_START_WINDOW,
@@ -164,6 +186,8 @@ TaskPropertiesPanel::OnFAIFinishHeightChange(DataFieldBoolean &df)
   if (newvalue != p.finish_constraints.fai_finish) {
     p.finish_constraints.fai_finish = p.start_constraints.fai_finish
       = newvalue;
+
+    p.finish_constraints.max_height_loss = newvalue ? 0 : p.finish_constraints.max_height_loss;
     ordered_task->SetOrderedTaskSettings(p);
 
     *task_changed = true;
@@ -185,13 +209,32 @@ TaskPropertiesPanel::OnTaskTypeChange(DataFieldEnum &df)
 }
 
 void
+TaskPropertiesPanel::OnScoreAtPEVChange(DataFieldBoolean &df){
+
+	bool newvalue = df.GetValue();
+
+	OrderedTaskSettings p = ordered_task->GetOrderedTaskSettings();
+	p.start_constraints.score_pev = newvalue;
+	if (newvalue&&(!p.start_constraints.score_exit))  {
+
+		p.start_constraints.score_exit = true;}
+	ordered_task->SetOrderedTaskSettings(p);
+	*task_changed=true;
+	RefreshView();
+}
+
+void
 TaskPropertiesPanel::OnModified(DataField &df) noexcept
 {
   if (IsDataField(FAI_FINISH_HEIGHT, df))
     OnFAIFinishHeightChange((DataFieldBoolean &)df);
   else if (IsDataField(TASK_TYPE, df))
     OnTaskTypeChange((DataFieldEnum &)df);
+  else if (IsDataField(START_SCORE_PEV, df)){
+ 	  OnScoreAtPEVChange((DataFieldBoolean &)df);
+  }
 }
+
 
 void
 TaskPropertiesPanel::Prepare([[maybe_unused]] ContainerWindow &parent,
@@ -216,6 +259,8 @@ TaskPropertiesPanel::Prepare([[maybe_unused]] ContainerWindow &parent,
   AddBoolean(_("Arm start manually"),
              _("Configure whether the start must be armed manually or automatically."),
              false);
+
+  AddBoolean (_("Start at PEV"), nullptr, false,this);
 
   AddBoolean(_("Score start exit"), nullptr, false);
 
@@ -257,6 +302,11 @@ TaskPropertiesPanel::Prepare([[maybe_unused]] ContainerWindow &parent,
           _("Reference used for finish min height rule."),
           altitude_reference_list);
 
+  AddFloat(_("Max altitude loss"),
+             _("Maximum altitude difference between task start and finish. If zero than ingored."),
+             _T("%.0f %s"), _T("%.0f"),
+             0, 10000, 25, false, 0);
+      
   AddDuration(_("PEV start wait time"),
               _("Wait time in minutes after Pilot Event and before start gate opens. "
                 "0 means start opens immediately."),

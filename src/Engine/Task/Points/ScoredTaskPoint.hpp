@@ -107,6 +107,7 @@ public:
    */
   bool TransitionExit(const AircraftState &ref_now,
                       const AircraftState &ref_last,
+                      const bool pev_advance_ready,
                       const FlatProjection &projection) noexcept;
 
   /** Retrieve location to be used for the scored task. */
@@ -145,7 +146,8 @@ protected:
    */
   [[gnu::pure]]
   virtual bool CheckExitTransition(const AircraftState &ref_now,
-                                   const AircraftState &ref_last) const noexcept = 0;
+                                   const AircraftState &ref_last,
+                                   const bool pev_advance_ready) const = 0;
 
 private:
   [[gnu::pure]]

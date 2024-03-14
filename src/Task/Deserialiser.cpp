@@ -248,6 +248,8 @@ Deserialise(OrderedTaskSettings &data, const ConstDataNode &node)
                     data.start_constraints.require_arm);
   node.GetAttribute("start_score_exit",
                     data.start_constraints.score_exit);
+  node.GetAttribute(_T("start_score_pev"),
+		  	  	  	 data.start_constraints.score_pev);
   node.GetAttribute("start_max_speed", data.start_constraints.max_speed);
   node.GetAttribute("start_max_height", data.start_constraints.max_height);
   GetHeightRef(node, "start_max_height_ref",
@@ -260,6 +262,8 @@ Deserialise(OrderedTaskSettings &data, const ConstDataNode &node)
 
   GetHeightRef(node, "finish_min_height_ref",
                data.finish_constraints.min_height_ref);
+  node.GetAttribute(_T("max_height_loss"),data.finish_constraints.max_height_loss);
+
   node.GetAttribute("fai_finish", data.finish_constraints.fai_finish);
   data.start_constraints.fai_finish = data.finish_constraints.fai_finish;
   node.GetAttribute("pev_start_wait_time",

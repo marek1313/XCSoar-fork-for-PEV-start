@@ -322,13 +322,13 @@ TaskManager::DoGoto(WaypointPtr &&wp) noexcept
 
 bool
 TaskManager::SetPEV(const BrokenTime bt){
-  bool retval = false;
+  bool retval = true;
   if (ordered_task)
-	  retval |= ordered_task->SetPEV(bt);
+	  retval &= ordered_task->SetPEV(bt);
   if (abort_task)
-    retval |= abort_task->SetPEV(bt);
+    retval &= abort_task->SetPEV(bt);
   if (goto_task)
-     retval |= goto_task->SetPEV(bt);
+     retval &= goto_task->SetPEV(bt);
   return retval;
 }
 

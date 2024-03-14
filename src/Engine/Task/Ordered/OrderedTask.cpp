@@ -438,7 +438,6 @@ OrderedTask::CheckTransitions(const AircraftState &state,
                           1);
   FlatBoundingBox bb_now(task_projection.ProjectInteger(state.location),
                          1);
-
   const auto last_started_time = stats.start.GetStartedTime();
   const bool last_finished = stats.task_finished;
 
@@ -455,12 +454,15 @@ OrderedTask::CheckTransitions(const AircraftState &state,
       full_update |= CheckTransitionOptionalStart(state, state_last,
                                                   bb_now, bb_last,
                                                   transition_enter,
-                                                  transition_exit);
+                                                  transition_exit,
+                                                  stats.pev_based_advance_ready
+                                                  );
     }
 
     full_update |= CheckTransitionPoint(*task_points[i],
                                         state, state_last, bb_now, bb_last,
                                         transition_enter, transition_exit,
+                                        stats.pev_based_advance_ready, 
                                         i == 0);
 
     if (i == (int)active_task_point) {
@@ -501,11 +503,13 @@ OrderedTask::CheckTransitions(const AircraftState &state,
     const AircraftState &start_state = taskpoint_start->GetExitedState();
     assert(start_state.HasTime());
     stats.start.SetStarted(start_state);
+    stats.pev_based_advance_ready=false;
+    if (taskpoint_finish != nullptr){
+      // Calculation based on FAI finish or max_height_loss
+      taskpoint_finish->SetFaiFinishHeight(taskpoint_finish->CalculateFinishHeightFromStart(stats.start.altitude));
+    }
 
-    if (taskpoint_finish != nullptr)
-      taskpoint_finish->SetFaiFinishHeight(start_state.altitude - 1000);
   }
-
   if (task_events != nullptr) {
     if (stats.start.GetStartedTime() > last_started_time)
       task_events->TaskStart();
@@ -523,7 +527,9 @@ OrderedTask::CheckTransitionOptionalStart(const AircraftState &state,
                                           const FlatBoundingBox& bb_now,
                                           const FlatBoundingBox& bb_last,
                                           bool &transition_enter,
-                                          bool &transition_exit) noexcept
+                                          bool &transition_exit,
+                                          bool pev_based_advance_ready)
+                                           noexcept
 {
   bool full_update = false;
 
@@ -532,7 +538,7 @@ OrderedTask::CheckTransitionOptionalStart(const AircraftState &state,
     full_update |= CheckTransitionPoint(**i,
                                         state, state_last, bb_now, bb_last,
                                         transition_enter, transition_exit,
-                                        true);
+                                        pev_based_advance_ready, true);
 
     if (transition_enter || transition_exit) {
       // we have entered or exited this optional start point, so select it.
@@ -555,6 +561,7 @@ OrderedTask::CheckTransitionPoint(OrderedTaskPoint &point,
                                   const FlatBoundingBox &bb_last,
                                   bool &transition_enter,
                                   bool &transition_exit,
+                                  const bool pev_ready_to_advance,
                                   const bool is_start) noexcept
 {
   const bool nearby = point.BoundingBoxOverlaps(bb_now) ||
@@ -567,7 +574,7 @@ OrderedTask::CheckTransitionPoint(OrderedTaskPoint &point,
       task_events->EnterTransition(point);
   }
 
-  if (nearby && point.TransitionExit(state, state_last, task_projection)) {
+  if (nearby && point.TransitionExit(state, state_last, pev_ready_to_advance, task_projection)) {
     transition_exit = true;
 
     if (task_events != nullptr)
@@ -626,8 +633,7 @@ void OrderedTask::UpdateAfterPEV(const AircraftState &state, BrokenTime bt) noex
       OrderedTaskSettings &ots =
           ordered_settings;
       const StartConstraints &start = ots.start_constraints;
-      /*
-       * For this commit we only implement time based start constraints for PEV
+
       if (start.score_pev){
 
           // to be added confirmation dialog in case PEV events more often than configured time window
@@ -643,6 +649,8 @@ void OrderedTask::UpdateAfterPEV(const AircraftState &state, BrokenTime bt) noex
                       t += std::chrono::minutes{1};
                     new_start = new_start + RoughTimeDelta::FromDuration(t);
                   }
+          // in this case we use only wait time to force waiting for next window
+          // start window end is not limited as the start should occure at PEV when reaching start zone after PEV
           const RoughTimeSpan ts = RoughTimeSpan(new_start, new_end);
 
           ots.start_constraints.open_time_span=ts;
@@ -652,7 +660,7 @@ void OrderedTask::UpdateAfterPEV(const AircraftState &state, BrokenTime bt) noex
 
       }else
       {
-        */
+        
         if (start.pev_start_wait_time.count() > 0) {
           auto t = std::chrono::duration_cast<std::chrono::minutes>(start.pev_start_wait_time);
           // Set start time to the next full minute after wait time.
@@ -669,29 +677,27 @@ void OrderedTask::UpdateAfterPEV(const AircraftState &state, BrokenTime bt) noex
 
         ots.start_constraints.open_time_span=ts;
 
-      /*
-        }
-       */
+      
+      }
+       
 }
 
 bool OrderedTask::SetPEV(const BrokenTime bt) {
    //Use state time instead of system time in updating information related to PEV inside Task
    if (!last_state_time.IsDefined())return false;
 
-  /* 
-   * In this commit we only introduce time constraints update 
-   
+ 
  	if (taskpoint_start){
 
  		  if ((taskpoint_start->GetScorePEV())&&!(ordered_settings.start_constraints.open_time_span.HasBegun(RoughTime{last_state_time})))
  		    // the start gate is not yet open when we left the OZ
  		    return false;
  	}
-  */
- 	//return AbstractTask::SetPEV(bt);
-  	pev_received=true;
-  	pev_receive_time=bt;
-    return true;
+  
+  pev_received=true;
+  pev_receive_time=bt;
+  return true;
+
  };
 
 bool
@@ -1457,6 +1463,12 @@ OrderedTask::PropagateOrderedTaskSettings() noexcept
 
   for (auto &tp : optional_start_points)
     tp->SetOrderedTaskSettings(ordered_settings);
+
+  //Update finish height in case it is based on started altitude
+  if (taskpoint_start!=nullptr && taskpoint_finish!=nullptr)
+    	  if (taskpoint_start->GetActiveState()==OrderedTaskPoint::BEFORE_ACTIVE){
+    		  taskpoint_finish->SetFaiFinishHeight(taskpoint_finish->CalculateFinishHeightFromStart(stats.start.altitude));
+  }
 }
 
 bool

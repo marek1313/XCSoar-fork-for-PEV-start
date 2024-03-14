@@ -587,7 +587,9 @@ void
 AbstractTaskFactory::UpdateOrderedTaskSettings(OrderedTaskSettings &to) noexcept
 {
   to.start_constraints.require_arm = constraints.start_requires_arm;
+  to.start_constraints.score_pev = false;
   to.finish_constraints.fai_finish = constraints.fai_finish;
+  //to.finish_constraints.max_height_loss = 0;
 }
 
 bool 

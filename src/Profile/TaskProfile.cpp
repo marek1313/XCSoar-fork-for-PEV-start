@@ -55,6 +55,7 @@ Profile::Load(const ProfileMap &map, FinishConstraints &constraints)
 {
   map.GetEnum(ProfileKeys::FinishHeightRef, constraints.min_height_ref);
   map.Get(ProfileKeys::FinishMinHeight, constraints.min_height);
+  map.Get(ProfileKeys::MaxLossOfHeight, constraints.max_height_loss);
 }
 
 void

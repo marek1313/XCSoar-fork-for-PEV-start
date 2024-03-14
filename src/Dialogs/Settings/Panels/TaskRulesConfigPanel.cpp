@@ -21,6 +21,7 @@ enum ControlIndex {
   spacer_2,
   FinishMinHeight,
   FinishHeightRef,
+  MaxLossOfHeight,
   spacer_3,
   PEVStartWaitTime,
   PEVStartWindow,
@@ -102,6 +103,13 @@ TaskRulesConfigPanel::Prepare(ContainerWindow &parent,
           (unsigned)task_behaviour.ordered_defaults.finish_constraints.min_height_ref);
   SetExpertRow(FinishHeightRef);
 
+  AddFloat(_("Max Loss Of Height"),
+          _("Max height difference between task start and task finish."
+                "Set 0 for no limit."),
+          _T("%.0f %s"), _T("%.0f"), 0, 10000, 50, false, UnitGroup::ALTITUDE,
+           task_behaviour.ordered_defaults.finish_constraints.max_height_loss);
+  SetExpertRow(MaxLossOfHeight);
+
   AddSpacer();
   SetExpertRow(spacer_3);
 
@@ -151,6 +159,9 @@ TaskRulesConfigPanel::Save(bool &_changed) noexcept
   changed |= SaveValue(FinishMinHeight, UnitGroup::ALTITUDE,
                        ProfileKeys::FinishMinHeight,
                        otb.finish_constraints.min_height);
+  changed |= SaveValue(MaxLossOfHeight, UnitGroup::ALTITUDE,
+                       ProfileKeys::MaxLossOfHeight,
+                       otb.finish_constraints.max_height_loss);
 
   changed |= SaveValueEnum(FinishHeightRef, ProfileKeys::FinishHeightRef,
                            otb.finish_constraints.min_height_ref);

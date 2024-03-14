@@ -46,13 +46,34 @@ public:
              const StartConstraints &constraints);
 
   bool DoesRequireArm() const {
-    return constraints.require_arm;
+    return constraints.require_arm&&(!constraints.score_pev);
   }
 
   bool GetScoreExit() const noexcept {
     return constraints.score_exit;
   }
 
+  bool GetScorePEV() const noexcept {
+    return constraints.score_pev;
+  }
+
+   [[gnu::pure]]
+    const GeoPoint &GetLocationMax() const noexcept override {
+      //For calculating the distance to the start point if task started by PEV, we use exact point of start
+    	
+      if (GetActiveState()==OrderedTaskPoint::BEFORE_ACTIVE && GetScorePEV())
+    	  return GetEnteredState().location.IsValid() ? GetExitedState().location : OrderedTaskPoint::GetLocationMax();
+      return OrderedTaskPoint::GetLocationMax();
+    };
+
+
+    const GeoPoint &GetLocationMin() const noexcept override {
+      //For calculating the distance to the start point if task started by PEV, we use exact point of start
+    	if (GetActiveState()==OrderedTaskPoint::BEFORE_ACTIVE && GetScorePEV())
+    	    	  return HasExited() ? GetExitedState().location : OrderedTaskPoint::GetLocationMin();
+    	return OrderedTaskPoint::GetLocationMin();
+    };
+    
   /**
    * Search for the min point on the boundary from
    * the aircraft state to the next point.  Should only
@@ -69,8 +90,12 @@ public:
   double GetElevation() const noexcept override;
 
   /* virtual methods from class ScoredTaskPoint */
-  bool CheckExitTransition(const AircraftState &ref_now,
+  bool CheckEnterTransition(const AircraftState &ref_now,
                            const AircraftState &ref_last) const noexcept override;
+
+  bool CheckExitTransition(const AircraftState &ref_now,
+                           const AircraftState &ref_last,const bool pev_advance_ready) const noexcept override;
+
 
   /* virtual methods from class OrderedTaskPoint */
   void SetTaskBehaviour(const TaskBehaviour &tb) noexcept override;

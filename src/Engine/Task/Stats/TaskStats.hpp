@@ -83,6 +83,14 @@ public:
   /** Whether the task is appoximately in final glide */
   bool flight_mode_final_glide;
 
+/**
+   * PEV was sent to start task
+   *
+   */
+  bool pev_based_advance_ready;
+
+  TimeStamp pev_time;
+  
   StartStats start;
 
   WindowStats last_hour;

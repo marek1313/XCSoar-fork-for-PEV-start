@@ -152,6 +152,7 @@ constexpr std::string_view GliderScreenPosition = "GliderScreenPosition";
 constexpr std::string_view SetSystemTimeFromGPS = "SetSystemTimeFromGPS";
 
 constexpr std::string_view FinishMinHeight = "FinishMinHeight";
+constexpr std::string_view MaxLossOfHeight = "MaxLossOfHeight";
 constexpr std::string_view FinishHeightRef = "FinishHeightRef";
 constexpr std::string_view StartMaxHeight = "StartMaxHeight";
 constexpr std::string_view StartMaxSpeed = "StartMaxSpeed";

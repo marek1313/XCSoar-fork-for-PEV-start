@@ -67,7 +67,7 @@ public:
    * @return Location of max distance node
    */
   [[gnu::pure]]
-  const GeoPoint &GetLocationMax() const noexcept {
+  virtual const GeoPoint &GetLocationMax() const noexcept {
     assert(search_max.IsValid());
 
     return search_max.GetLocation();
@@ -79,7 +79,7 @@ public:
    *
    * @return Location of minimum distance node
    */
-  const GeoPoint &GetLocationMin() const noexcept {
+  virtual const GeoPoint &GetLocationMin() const noexcept {
     assert(search_min.IsValid());
 
     return search_min.GetLocation();

@@ -220,13 +220,17 @@ AbstractTask::Update(const AircraftState &state,
 	  last_state_time=state.time;
   }
 
-  if (pev_received) UpdateAfterPEV(state,(const BrokenTime)pev_receive_time);
+  if (pev_received&&state.location.IsValid()) {
+    UpdateAfterPEV(state,(const BrokenTime)pev_receive_time);
+    pev_received=false;
+    force_full_update = true;
+  }
   const bool full_update = 
     (state.location.IsValid() && state_last.location.IsValid() &&
-     CheckTransitions(state, state_last)) || pev_received ||
+     CheckTransitions(state, state_last)) ||
     force_full_update;
   force_full_update = false;
-  pev_received=false;
+
   UpdateStatsDistances(state.location, full_update);
   UpdateGlideSolutions(state, glide_polar);
   UpdateStatsTimes(state.time);
@@ -330,8 +334,9 @@ AbstractTask::UpdateFlightMode() noexcept
 
 bool AbstractTask::SetPEV(const BrokenTime bt){
 	  //maybe should be changed to a list of PEVs received
+    pev_received=true;
     pev_receive_time=bt;
-    return false;
+    return true;
   };
 
 void AbstractTask::UpdateAfterPEV(const AircraftState &state __attribute__((unused)),const BrokenTime bt __attribute__((unused))) noexcept{

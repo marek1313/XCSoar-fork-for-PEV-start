@@ -38,6 +38,12 @@ struct StartConstraints {
   bool score_exit;
 
   /**
+   * If this is true, then PEV point is the goal and start is at position of PEV pressed inside
+   * observation zone. This can be true exclusively to score_exit.
+   */
+  bool score_pev;
+  
+  /**
    * This is a copy of FinishConstraints::fai_finish.  If true, then
    * the constraints defined in this class will be ignored.
    */

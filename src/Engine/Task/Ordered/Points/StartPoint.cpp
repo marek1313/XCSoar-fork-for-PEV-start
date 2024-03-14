@@ -87,10 +87,20 @@ StartPoint::IsInSector(const AircraftState &state) const noexcept
     // TODO: not using margins?
     constraints.CheckHeight(state, GetBaseElevation());
 }
+bool StartPoint::CheckEnterTransition(const AircraftState &ref_now,const AircraftState &ref_last) const noexcept{
+	if (GetScorePEV()) {
+
+		return false;
+	}
+	else {
+		return  OrderedTaskPoint::CheckEnterTransition(ref_now,ref_last);
+	}
+}
+
 
 bool
 StartPoint::CheckExitTransition(const AircraftState &ref_now,
-                                const AircraftState &ref_last) const noexcept
+                                 const AircraftState &ref_last,const bool pev_advance_ready) const noexcept
 {
   if (!constraints.open_time_span.HasBegun(RoughTime{ref_last.time}))
     /* the start gate is not yet open when we left the OZ */
@@ -111,9 +121,16 @@ StartPoint::CheckExitTransition(const AircraftState &ref_now,
   const bool last_in_height =
     constraints.CheckHeight(ref_last, GetBaseElevation());
 
+  if (GetScorePEV()&&IsInSector(ref_last)&&now_in_height&&last_in_height&&pev_advance_ready){
+	return true;
+  }
+  if (GetScorePEV())
+  {
+    return false;
+  }
   if (now_in_height && last_in_height) {
     // both within height limit, so use normal location checks
-    return OrderedTaskPoint::CheckExitTransition(ref_now, ref_last);
+    return OrderedTaskPoint::CheckExitTransition(ref_now, ref_last,pev_advance_ready);
   }
   if (!TransitionConstraint(ref_now.location, ref_last.location)) {
     // don't allow vertical crossings for line OZ's
