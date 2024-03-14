@@ -7,11 +7,13 @@
 #include <cassert>
 
 void
-StartStats::SetStarted(const AircraftState &aircraft) noexcept
+StartStats::SetStarted(const AircraftState &aircraft,bool pev)
 {
+
+  advanced_by_pev = pev;
   time = aircraft.time;
   altitude = aircraft.altitude;
   ground_speed = aircraft.ground_speed;
 
-  assert(HasStarted());
 }
+

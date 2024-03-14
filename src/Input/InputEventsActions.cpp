@@ -73,6 +73,7 @@ https://xcsoar.readthedocs.io/en/latest/input_events.html
 #include "Components.hpp"
 #include "BackendComponents.hpp"
 #include "DataComponents.hpp"
+#include "Dialogs/Message.hpp"
 #include "Terrain/RasterTerrain.hpp"
 
 #include <cassert>
@@ -198,7 +199,11 @@ try {
   
   // Start time window based on PEV moved to task manager
   //Inform task manager about PEV
-  const BrokenTime bt = BrokenDateTime::NowUTC();
+  if (ShowMessageBox(_("Set PEV now?"), _T("XCSoar"),
+                     MB_YESNO | MB_ICONQUESTION) == IDYES) 
+  {
+                     
+    const BrokenTime bt = BrokenDateTime::NowUTC();
   
     if (!backend_components->protected_task_manager->SetPEV(bt)){
     	//message that no pev should be set;
@@ -214,12 +219,14 @@ try {
           MessageOperationEnvironment env;
           backend_components->devices->PutPilotEvent(env);
         }
+        Message::AddMessage(_("Pilot event announced"));
     }
+  }
 
-  // Log pilot event
+
  
 
-  // Let devices know the pilot event was pressed
+
 
 } catch (...) {
   ShowError(std::current_exception(), _("Logger Error"));

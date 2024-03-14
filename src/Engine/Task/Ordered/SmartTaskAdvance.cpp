@@ -23,6 +23,9 @@ SmartTaskAdvance::CheckReadyToAdvance(const TaskPoint &tp,
 
   case TaskPointType::START: {
     const StartPoint &sp = (const StartPoint &)tp;
+    if (sp.GetScorePEV()){
+    	return state_ready;
+    }
     if (sp.DoesRequireArm()) {
       if (armed) {
         state = TaskAdvance::START_ARMED;

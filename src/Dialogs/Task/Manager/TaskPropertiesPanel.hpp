@@ -31,7 +31,7 @@ public:
 
   void OnFAIFinishHeightChange(DataFieldBoolean &df);
   void OnTaskTypeChange(DataFieldEnum &df);
-
+  void OnScoreAtPEVChange(DataFieldBoolean &df);
   /* virtual methods from Widget */
   void Prepare(ContainerWindow &parent, const PixelRect &rc) noexcept override;
   void ReClick() noexcept override;

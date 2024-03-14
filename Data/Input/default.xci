@@ -505,7 +505,7 @@ mode=Nav1
 type=key
 data=0
 event=Mode default
-event=StatusMessage Pilot event announced
+#event=StatusMessage Pilot event announced
 event=Logger note PEV
 event=PilotEvent
 label=Pilot Event Announce
@@ -1056,11 +1056,28 @@ location=4
 
 mode=Menu
 type=key
+data=0
+event=Mode default
+#event=StatusMessage Pilot event announced
+event=Logger note PEV
+event=PilotEvent
+label=Pilot Event Announce
+location=6
+
+mode=Menu
+type=key
 data=9
 event=LockScreen
 event=Mode default
 label=Lock Screen
 location=7
+
+mode=Menu
+type=key
+data=9
+event=Mode default
+label=Cancel
+location=8
 
 mode=Menu
 type=key
@@ -1070,15 +1087,7 @@ event=Mode default
 label=Quit
 location=9
 
-#mode=Menu
-#type=key
-#data=0
-#event=Mode default
-#event=StatusMessage Pilot event announced
-#event=Logger note PEV
-#event=PilotEvent
-#label=Pilot Event Announce
-#location=5
+
 
 # ----------------------------------
 # mode=default.TA (ThermalAssistant)
@@ -1433,6 +1442,15 @@ data=0
 event=RepeatStatusMessage
 label=Message Repeat
 location=38
+
+mode=RemoteStick
+type=key
+data=0
+event=Mode default
+event=Logger note PEV
+event=PilotEvent
+label=Pilot Event Announce
+location=39
 
 mode=RemoteStick
 type=key

@@ -27,6 +27,8 @@ TaskAdvance::IsStateReady(const TaskPoint &tp,
 
   case TaskPointType::START: {
     const auto &sp = (const StartPoint &)tp;
+    if (sp.GetScorePEV())
+         return x_exit;
     return sp.GetScoreExit()
       ? x_exit
       : sp.HasEntered();

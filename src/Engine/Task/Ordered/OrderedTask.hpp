@@ -503,6 +503,7 @@ private:
                             const FlatBoundingBox &bb_now,
                             const FlatBoundingBox &bb_last,
                             bool &transition_enter, bool &transition_exit,
+                            const bool pev_based_advance_ready,
                             bool is_start) noexcept;
 
   bool CheckTransitionOptionalStart(const AircraftState &state_now,
@@ -510,7 +511,8 @@ private:
                                     const FlatBoundingBox& bb_now,
                                     const FlatBoundingBox& bb_last,
                                     bool &transition_enter,
-                                    bool &transition_exit) noexcept;
+                                    bool &transition_exit,
+                                    const bool pev_based_advance_ready) noexcept;
 
   /**
    * @param waypoints Active waypoint database

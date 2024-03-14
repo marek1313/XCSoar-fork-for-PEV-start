@@ -9,6 +9,7 @@ FinishConstraints::SetDefaults()
 {
   min_height = 0;
   min_height_ref = AltitudeReference::AGL;
+  max_height_loss = 0;
   fai_finish = false;
 }
 

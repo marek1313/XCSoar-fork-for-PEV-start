@@ -13,6 +13,11 @@ struct AircraftState;
  * Container for start point statistics.
  */
 struct StartStats {
+
+  /**
+   * True if the start was advanced by the pilot event.
+   */
+  bool advanced_by_pev;
   /**
    * The time when the task was started [UTC seconds of day].  Only
    * valid if HasStarted() is true.
@@ -33,6 +38,8 @@ struct StartStats {
 
   constexpr void Reset() noexcept {
     time = TimeStamp::Undefined();
+    advanced_by_pev = false;
+
   }
 
   bool HasStarted() const noexcept {
@@ -43,7 +50,11 @@ struct StartStats {
    * Enable the HasStarted() flag and copy data from the
    * #AircraftState.
    */
-  void SetStarted(const AircraftState &aircraft) noexcept;
+  void SetStarted(const AircraftState &aircraft,bool pev);
+
+  void SetStarted(const AircraftState &aircraft) {
+	  SetStarted(aircraft,false);
+  }
 
   TimeStamp GetStartedTime() const noexcept {
     return time;

@@ -25,9 +25,10 @@ ScoredTaskPoint::TransitionEnter(const AircraftState &ref_now,
 bool 
 ScoredTaskPoint::TransitionExit(const AircraftState &ref_now,
                                 const AircraftState &ref_last,
+                                const bool pev_advance_ready,
                                 const FlatProjection &projection) noexcept
 {
-  if (!CheckExitTransition(ref_now, ref_last))
+  if (!CheckExitTransition(ref_now, ref_last,pev_advance_ready))
     return false;
 
   if (ScoreLastExit()) {
