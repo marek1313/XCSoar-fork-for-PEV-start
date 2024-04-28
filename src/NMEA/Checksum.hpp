@@ -14,10 +14,8 @@
  */
 [[nodiscard]] [[gnu::pure]]
 static constexpr uint8_t
-NMEAChecksum(std::convertible_to<const char *> auto &&_src) noexcept
+NMEAChecksum(const char *p) noexcept
 {
-  const char *p = _src;
-
   uint8_t checksum = 0;
 
   /* skip the dollar sign at the beginning (the exclamation mark is
@@ -40,17 +38,20 @@ NMEAChecksum(std::convertible_to<const char *> auto &&_src) noexcept
  */
 [[nodiscard]] [[gnu::pure]]
 static constexpr uint8_t
-NMEAChecksum(std::string_view src) noexcept
+NMEAChecksum(const char *p, unsigned length) noexcept
 {
   uint8_t checksum = 0;
+  unsigned i = 0;
 
-  /* skip the dollar sign at the beginning (the exclamation mark is
-     used by CAI302 */
-  if (!src.empty() && (src.front() == '$' || src.front() == '!'))
-    src.remove_prefix(1);
+   /* skip the dollar sign at the beginning (the exclamation mark is
+      used by CAI302 */
+   if (length > 0 && (*p == '$' || *p == '!')) {
+     ++i;
+     ++p;
+   }
 
-  for (char ch : src)
-    checksum ^= static_cast<uint8_t>(ch);
+  for (; i < length; ++i)
+     checksum ^= static_cast<uint8_t>(*p++);
 
   return checksum;
 }
