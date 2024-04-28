@@ -89,7 +89,7 @@ public class AllFilesDocumentsProvider extends DocumentsProvider {
   }
 
   private String getAuthority() {
-    return getContext().getPackageName() + ".allfiles";
+    return  "org.xcsoarpev.allfiles";
   }
 
   private void notifyChildDocumentsChange(String parentDocumentId) {

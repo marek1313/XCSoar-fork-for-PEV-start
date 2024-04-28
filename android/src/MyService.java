@@ -60,12 +60,15 @@ public class MyService extends Service {
   }
 
   private static Notification createNotification(Context context, PendingIntent intent) {
+    int resid = context.getResources().getIdentifier("notification_icon","drawable",context.getPackageName());
+
+    Log.i(context.getPackageName(),String.format(" notification_icon resid 0x%08x",resid));
     Notification.Builder builder = createNotificationBuilder(context)
       .setOngoing(true)
       .setContentIntent(intent)
       .setContentTitle("XCSoar")
       .setContentText("XCSoar is running")
-      .setSmallIcon(R.drawable.notification_icon);
+      .setSmallIcon(resid);
 
     return builder.build();
   }
