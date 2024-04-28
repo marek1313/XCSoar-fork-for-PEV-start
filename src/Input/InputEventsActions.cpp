@@ -205,7 +205,7 @@ try {
     	//message that no pev should be set;
     	TCHAR TempAll[120];
 
-    	_stprintf(TempAll, _T("Probably start window not open yet"));
+    	_stprintf(TempAll, _T("Probably start window not open yet."));
 
     	Message::AddMessage(_("PEV Should not be used."), TempAll);
     }else{

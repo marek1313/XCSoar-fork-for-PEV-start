@@ -60,7 +60,6 @@ public:
    [[gnu::pure]]
     const GeoPoint &GetLocationMax() const noexcept override {
       //For calculating the distance to the start point if task started by PEV, we use exact point of start
-    	
       if (GetActiveState()==OrderedTaskPoint::BEFORE_ACTIVE && GetScorePEV())
     	  return GetEnteredState().location.IsValid() ? GetExitedState().location : OrderedTaskPoint::GetLocationMax();
       return OrderedTaskPoint::GetLocationMax();

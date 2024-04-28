@@ -332,10 +332,10 @@ AbstractTask::UpdateFlightMode() noexcept
   stats.calc_flight_mode(task_behaviour);
 }
 
-bool AbstractTask::SetPEV(const BrokenTime bt){
+bool AbstractTask::SetPEV(const BrokenTime bt __attribute__((unused))){
 	  //maybe should be changed to a list of PEVs received
-    pev_received=true;
-    pev_receive_time=bt;
+    //pev_received=true;
+    //pev_receive_time=bt;
     return true;
   };
 
