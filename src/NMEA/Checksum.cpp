@@ -25,7 +25,7 @@ VerifyNMEAChecksum(const char *p) noexcept
     return false;
 
   uint8_t ReadCheckSum = (unsigned char)ReadCheckSum2;
-  uint8_t CalcCheckSum = NMEAChecksum({p, asterisk});
+  uint8_t CalcCheckSum = NMEAChecksum(p, asterisk - p);
 
   return CalcCheckSum == ReadCheckSum;
 }
@@ -37,5 +37,5 @@ AppendNMEAChecksum(char *p) noexcept
 
   const std::size_t length = strlen(p);
 
-  sprintf(p + length, "*%02X", NMEAChecksum({p, length}));
+  sprintf(p + length, "*%02X", NMEAChecksum(p, length));
 }
