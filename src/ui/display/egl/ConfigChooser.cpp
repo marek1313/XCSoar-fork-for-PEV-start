@@ -77,13 +77,15 @@ FindClosestConfig(EGLDisplay display,
                   int want_depth, int want_stencil) noexcept
 {
   EGLConfig closestConfig = nullptr;
-  int closestDistance = 1000;
+  int closestDistance = -1;
+          
 
   for (EGLConfig config : configs) {
+    if (config==nullptr) continue;
     int distance = ConfigDistance(display, config,
                                   want_r, want_g, want_b, want_a,
                                   want_depth, want_stencil);
-    if (distance < closestDistance) {
+    if ((distance < closestDistance || closestDistance < 0)) {
       closestDistance = distance;
       closestConfig = config;
     }
@@ -159,7 +161,7 @@ ChooseConfig(EGLDisplay display)
     throw FmtRuntimeError("eglChooseConfig() failed: {:#x}", eglGetError());
 
   if (num_configs == 0)
-    throw std::runtime_error("eglChooseConfig() failed");
+    throw std::runtime_error("eglChooseConfig() failed - zero configs");
 
 #ifdef MESA_KMS
   /* On some GBM targets, such as the Raspberry Pi 4,
@@ -179,7 +181,7 @@ ChooseConfig(EGLDisplay display)
     FindClosestConfig(display, {configs.data(), std::size_t(num_configs)},
                       5, 6, 5, 0, 0, 1);
   if (closest_config == nullptr)
-    throw std::runtime_error("eglChooseConfig() failed");
+    throw FmtRuntimeError("eglChooseConfig() failed - no closest config, {:#x}", num_configs);
 
   return closest_config;
 #else
