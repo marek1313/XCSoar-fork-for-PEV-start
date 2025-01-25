@@ -44,6 +44,4 @@ build/local-config.mk
 .android/deployment_cert.der
 .android/mk.keystore
 xcsoarpev.aab
-android/ioio
-android/ioio
-/android
+/.vscode
