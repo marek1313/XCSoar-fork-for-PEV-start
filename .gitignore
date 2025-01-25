@@ -1,4 +1,6 @@
 *.o
+.gradle
+gradle*
 
 .stgit*
 .together/*
@@ -35,3 +37,11 @@ build/local-config.mk
 .*.swp
 
 .idea
+.vscode
+.gitignore
+
+.android/debug.keystore
+.android/deployment_cert.der
+.android/mk.keystore
+xcsoarpev.aab
+android/ioio
