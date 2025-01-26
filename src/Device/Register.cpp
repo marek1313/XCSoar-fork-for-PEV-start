@@ -19,6 +19,7 @@
 #include "Device/Driver/Volkslogger.hpp"
 #include "Device/Driver/EWMicroRecorder.hpp"
 #include "Device/Driver/LX.hpp"
+#include "Device/Driver/LX_Eos.hpp"
 #include "Device/Driver/IMI.hpp"
 #include "Device/Driver/Zander.hpp"
 #include "Device/Driver/FlymasterF1.hpp"
@@ -35,6 +36,7 @@
 #include "Device/Driver/LevilAHRS_G.hpp"
 #include "Device/Driver/BlueFlyVario.hpp"
 #include "Device/Driver/OpenVario.hpp"
+#include "Device/Driver/Larus.hpp"
 #include "Device/Driver/Vaulter.hpp"
 #include "Device/Driver/ATR833/Register.hpp"
 #include "Device/Driver/XCTracer.hpp"
@@ -77,12 +79,15 @@ static const struct DeviceRegister *const driver_list[] = {
   &bluefly_driver,
   &cai_lnav_driver,
   &open_vario_driver,
+  &larus_driver,
   &vaulter_driver,
   &krt2_driver,
   &atr833_driver,
   &xctracer_driver,
   &thermalexpress_driver,
   &acd_driver,
+  &condor3_driver,
+  &lx_eos_driver,
   nullptr
 };
 

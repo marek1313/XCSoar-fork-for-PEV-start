@@ -63,7 +63,7 @@ public:
     PublishPolarSettings();
     SetBallast();
   }
-  
+
   void SetBallast();
   void SetBallastTimer(bool active);
   void FlipBallastTimer();
@@ -113,7 +113,7 @@ private:
 void
 FlightSetupPanel::SetButtons()
 {
-  dump_button->SetVisible(polar_settings.glide_polar_task.HasBallast());
+  dump_button->SetEnabled(polar_settings.glide_polar_task.HasBallast());
 
   const ComputerSettings &settings = CommonInterface::GetComputerSettings();
   dump_button->SetCaption(settings.polar.ballast_timer_active
@@ -136,7 +136,7 @@ FlightSetupPanel::SetBallast()
   if (backend_components->devices != nullptr) {
     const Plane &plane = CommonInterface::GetComputerSettings().plane;
     if (plane.empty_mass > 0) {
-      auto dry_mass = plane.empty_mass + polar_settings.glide_polar_task.GetCrewMass();
+      auto dry_mass = polar_settings.glide_polar_task.GetDryMass();
       auto fraction = polar_settings.glide_polar_task.GetBallast();
       auto overload = (dry_mass + fraction * plane.max_ballast) /
         dry_mass;
@@ -265,10 +265,10 @@ FlightSetupPanel::Prepare(ContainerWindow &parent,
   AddFloat(_("Crew"),
            _("All masses loaded to the glider beyond the empty weight including pilot and copilot, but not water ballast."),
            _T("%.0f %s"), _T("%.0f"),
-           0, 300, 5, false, UnitGroup::MASS,
+           0, Units::ToUserMass(300), 5, false, UnitGroup::MASS,
            polar_settings.glide_polar_task.GetCrewMass(),
            this);
-  
+
   const double db = 5;
   AddFloat(_("Ballast"),
            _("Ballast of the glider. Press \"Dump/Stop\" to toggle count-down of the ballast volume according to the dump rate specified in the configuration settings."),
@@ -353,7 +353,7 @@ dlgBasicSettingsShowModal()
     instance->FlipBallastTimer();
   }));
 
-  dialog.AddButton(_("OK"), mrOK);
+  dialog.AddButton(_("Close"), mrOK);
 
   dialog.ShowModal();
 }

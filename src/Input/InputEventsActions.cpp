@@ -20,7 +20,8 @@ It also covers the configuration side of on screen labels.
 For further information on config file formats see
 
 source/Common/Data/Input/ALL
-doc/html/advanced/input/ALL  http://xcsoar.sourceforge.net/advanced/input/
+doc/html/advanced/input/ALL
+https://xcsoar.readthedocs.io/en/latest/input_events.html
 
 */
 
@@ -707,7 +708,6 @@ eventAirspaceWarnings - on, off, time nn, ack nn
 eventTerrain          - see map_window.Event_Terrain
 eventCompass          - on, off, cruise on, crusie off, climb on, climb off
 eventVario            - on, off // JMW what does this do?
-eventOrientation      - north, track,  ???
 eventTerrainRange     - on, off (might be part of eventTerrain)
 eventSounds           - Include Task and Modes sounds along with Vario
                       - Include master nn, deadband nn, netto trigger

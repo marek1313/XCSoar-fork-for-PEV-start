@@ -12,6 +12,7 @@
 #include "Engine/Waypoint/Waypoint.hpp"
 #include "Units/Units.hpp"
 #include "Formatter/TimeFormatter.hpp"
+#include "Formatter/UserUnits.hpp"
 #include "Language/Language.hpp"
 #include "Widget/CallbackWidget.hpp"
 #include "Renderer/NextArrowRenderer.hpp"
@@ -497,6 +498,20 @@ UpdateInfoBoxTaskSpeedHour(InfoBoxData &data) noexcept
 }
 
 void
+UpdateInfoBoxTaskSpeedEst(InfoBoxData &data) noexcept
+{
+  const TaskStats &task_stats = CommonInterface::Calculated().task_stats;
+  if (!task_stats.task_valid || !task_stats.total.planned.IsDefined() ||
+      !task_stats.total.IsAchievable()) {
+    data.SetInvalid();
+    return;
+  }
+
+  // Set Value and unit
+  data.SetValueFromTaskSpeed(task_stats.total.planned.GetSpeed());
+}
+
+void
 UpdateInfoBoxFinalGR(InfoBoxData &data) noexcept
 {
   const TaskStats &task_stats = CommonInterface::Calculated().task_stats;
@@ -564,15 +579,32 @@ UpdateInfoBoxTaskAADistance(InfoBoxData &data) noexcept
 {
   const auto &calculated = CommonInterface::Calculated();
   const TaskStats &task_stats = calculated.ordered_task_stats;
+  const MapSettings &map_settings = CommonInterface::GetMapSettings();
 
   if (!task_stats.has_targets ||
       !task_stats.total.planned.IsDefined()) {
     data.SetInvalid();
+    data.SetCommentInvalid();
+    data.SetAllColors(0);
     return;
   }
 
   // Set Value
-  data.SetValueFromDistance(task_stats.total.planned.GetDistance());
+  double distance = task_stats.total.planned.GetDistance();
+  data.SetValueFromDistance(distance);
+
+  if (map_settings.show_95_percent_rule_helpers) {
+    double fractionTotal = distance / task_stats.distance_max_total;
+    data.SetCommentFromPercent(fractionTotal*100.0);
+
+    if (fractionTotal > 0.95) data.SetAllColors(3);       // green
+    else if (fractionTotal > 0.85) data.SetAllColors(4);  // yellow
+    else data.SetAllColors(0);                            // normal
+  }
+  else {
+    data.SetCommentInvalid();
+    data.SetAllColors(0);
+  }
 }
 
 void
@@ -580,14 +612,25 @@ UpdateInfoBoxTaskAADistanceMax(InfoBoxData &data) noexcept
 {
   const auto &calculated = CommonInterface::Calculated();
   const TaskStats &task_stats = calculated.ordered_task_stats;
+  const MapSettings &map_settings = CommonInterface::GetMapSettings();
 
   if (!task_stats.has_targets) {
     data.SetInvalid();
+    data.SetCommentInvalid();
     return;
   }
 
   // Set Value
   data.SetValueFromDistance(task_stats.distance_max);
+
+  if (map_settings.show_95_percent_rule_helpers) {
+    auto distance = FormatUserDistanceSmart(0.95*task_stats.distance_max_total);
+    auto comment = std::basic_string<TCHAR>( _T("95% ") ) + distance.data();
+    data.SetComment(comment.data());
+  }
+  else {
+    data.SetCommentInvalid();
+  }
 }
 
 void

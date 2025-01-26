@@ -50,6 +50,13 @@ LX_SOURCES = \
 	$(DRIVER_SRC_DIR)/LX/LXN.cpp \
 	$(DRIVER_SRC_DIR)/LX/Register.cpp
 
+LX_EOS_SOURCES = \
+	$(DRIVER_SRC_DIR)/LX_EOS/LXEosDevice.cpp \
+	$(DRIVER_SRC_DIR)/LX_EOS/LXEosRegister.cpp \
+	$(DRIVER_SRC_DIR)/LX_EOS/LXEosParser.cpp \
+	$(DRIVER_SRC_DIR)/LX_EOS/LXEosDeclare.cpp \
+	$(DRIVER_SRC_DIR)/LX_EOS/LXEosDownload.cpp
+
 FLARM_SOURCES = \
 	$(DRIVER_SRC_DIR)/FLARM/Device.cpp \
 	$(DRIVER_SRC_DIR)/FLARM/Register.cpp \
@@ -95,6 +102,7 @@ DRIVER_SOURCES = \
 	$(CAI302_SOURCES) \
 	$(IMI_SOURCES) \
 	$(LX_SOURCES) \
+	$(LX_EOS_SOURCES) \
 	$(FLARM_SOURCES) \
 	$(FLYTEC_SOURCES) \
 	$(VEGA_SOURCES) \
@@ -126,9 +134,10 @@ DRIVER_SOURCES = \
 	$(DRIVER_SRC_DIR)/Vaulter.cpp \
 	$(DRIVER_SRC_DIR)/KRT2.cpp \
 	$(DRIVER_SRC_DIR)/AirControlDisplay.cpp \
+	$(DRIVER_SRC_DIR)/Larus.cpp \
 	$(DRIVER_SRC_DIR)/ATR833/Device.cpp \
 	$(DRIVER_SRC_DIR)/ATR833/Register.cpp
 
-DRIVER_DEPENDS = TIME LIBNMEA GEO OPERATION UNITS
+DRIVER_DEPENDS = TIME LIBNMEA GEO OPERATION UNITS FMT
 
 $(eval $(call link-library,driver,DRIVER))

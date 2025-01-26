@@ -6,7 +6,7 @@ TARGETS = PC WIN64 \
 	ANDROID ANDROID7 ANDROID86 \
 	ANDROIDAARCH64 ANDROIDX64 \
 	ANDROIDFAT \
-	OSX64 IOS32 IOS64
+	OSX64 MACOS IOS32 IOS64
 
 ifeq ($(TARGET),)
   ifeq ($(HOST_IS_UNIX),y)
@@ -43,6 +43,7 @@ X86 := n
 FAT_BINARY := n
 
 TARGET_IS_DARWIN := n
+TARGET_IS_IOS := n
 TARGET_IS_LINUX := n
 TARGET_IS_ANDROID := n
 TARGET_IS_PI := n
@@ -237,6 +238,18 @@ ifeq ($(TARGET),OSX64)
   TARGET_ARCH += -mmacosx-version-min=$(OSX_MIN_SUPPORTED_VERSION)
 endif
 
+ifeq ($(TARGET),MACOS)
+  override TARGET = UNIX
+  TARGET_IS_DARWIN = y
+  TARGET_IS_OSX = y
+  OSX_MIN_SUPPORTED_VERSION = 12.0
+  HOST_TRIPLET = aarch64-apple-darwin
+  LLVM_TARGET = $(HOST_TRIPLET)
+  CLANG = y
+  TARGET_ARCH += -mmacosx-version-min=$(OSX_MIN_SUPPORTED_VERSION)
+  TARGET_IS_ARM = y
+endif
+
 ifeq ($(TARGET),IOS32)
   override TARGET = UNIX
   TARGET_IS_DARWIN = y
@@ -313,7 +326,7 @@ ifeq ($(TARGET),UNIX)
 endif
 
 ifeq ($(TARGET),ANDROID)
-  ANDROID_NDK ?= $(HOME)/opt/android-ndk-r26c
+  ANDROID_NDK ?= $(HOME)/opt/android-ndk-r26d
 
   ANDROID_SDK_PLATFORM = android-33
   ANDROID_NDK_API = 21

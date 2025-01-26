@@ -165,14 +165,14 @@ For Android, you need:
 
 - `Android SDK level 33 <http://developer.android.com/sdk/>`__
 
-- `Android NDK r26c <http://developer.android.com/sdk/ndk/>`__
+- `Android NDK r26d <http://developer.android.com/sdk/ndk/>`__
 
 - `Ogg Vorbis <http://www.vorbis.com/>`__
 
 - Java JDK
 
 On Debian::
-  
+
   sudo apt-get install
       default-jdk-headless \
       vorbis-tools \
@@ -191,7 +191,7 @@ tools/bin/sdkmanager  "build-tools;33.0.2"  "platforms;android-33"
 
 The ``Makefile`` assumes that the Android SDK is installed in
 ``~/opt/android-sdk-linux`` and the NDK is installed in
-``~/opt/android-ndk-r26c``. You can use the options ``ANDROID_SDK`` and
+``~/opt/android-ndk-r26d``. You can use the options ``ANDROID_SDK`` and
 ``ANDROID_NDK`` to override these paths.
 
 Load/update the IOIO source code::
@@ -266,6 +266,10 @@ To compile for iOS / ARMv7, run::
 
   make TARGET=IOS32 ipa
 
+To compile for macOS / ARM64, run::
+
+  make TARGET=MACOS dmg
+
 To compile for macOS / x86_64, run::
 
   make TARGET=OSX64 dmg
@@ -289,7 +293,9 @@ Install the required Homebrew packages::
     libtiff libgeotiff proj \
     c-ares \
     curl \
-    lua
+    lua \
+    libicns \
+    cdrtools
 
 Then compile::
 
@@ -351,7 +357,8 @@ Debian packages::
   sudo apt-get install \
       fakeroot \
       python3-setuptools \
-      ttf-bitstream-vera
+      ttf-bitstream-vera \
+      fonts-roboto-unhinted
 
 Then compile using this command::
 

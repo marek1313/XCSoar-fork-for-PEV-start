@@ -23,7 +23,11 @@ NMEAChecksum(const char *p) noexcept
   if (*p == '$' || *p == '!')
     ++p;
 
+#if defined(__APPLE__) && (!defined(TARGET_OS_IPHONE) || !TARGET_OS_IPHONE)
+  while (*p != 0 && *p != '*')
+#else
   while (*p != 0)
+#endif
     checksum ^= static_cast<uint8_t>(*p++);
 
   return checksum;

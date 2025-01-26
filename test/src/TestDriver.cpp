@@ -16,9 +16,11 @@
 #include "Device/Driver/FlymasterF1.hpp"
 #include "Device/Driver/FlyNet.hpp"
 #include "Device/Driver/Flytec.hpp"
+#include "Device/Driver/Larus.hpp"
 #include "Device/Driver/LevilAHRS_G.hpp"
 #include "Device/Driver/Leonardo.hpp"
 #include "Device/Driver/LX.hpp"
+#include "Device/Driver/LX_Eos.hpp"
 #include "Device/Driver/LX/Internal.hpp"
 #include "Device/Driver/ILEC.hpp"
 #include "Device/Driver/IMI.hpp"
@@ -48,6 +50,8 @@
 #include "TestUtil.hpp"
 #include "Units/System.hpp"
 #include "io/NullDataHandler.hpp"
+#include "util/ByteOrder.hxx"
+#include "util/PackedFloat.hxx"
 
 #include <memory>
 
@@ -716,6 +720,63 @@ TestFlytec()
 }
 
 static void
+TestLarus()
+{
+  NullPort null;
+  Device *device = larus_driver.CreateOnPort(dummy_config, null);
+  ok1(device != NULL);
+
+  NMEAInfo nmea_info;
+  nmea_info.Reset();
+  nmea_info.clock = TimeStamp{FloatDuration{1}};
+
+  // $PLARA attitude
+  ok1(device->ParseNMEA("$PLARA,42.1,5.6,335.5*78", nmea_info));
+  ok1(nmea_info.attitude.bank_angle_available);
+  ok1(equals(nmea_info.attitude.bank_angle, 42.1));
+  ok1(nmea_info.attitude.pitch_angle_available);
+  ok1(equals(nmea_info.attitude.pitch_angle, 5.6));
+  ok1(nmea_info.attitude.heading_available);
+  ok1(equals(nmea_info.attitude.heading, 335.5));
+
+  // $PLARB battery voltage
+  ok1(device->ParseNMEA("$PLARB,13.00*4D", nmea_info));
+  ok1(nmea_info.voltage_available);
+  ok1(equals(nmea_info.voltage, 13.0));
+
+  // $PLARV tek vario, av_vario, baro height and speed (tas)
+  ok1(device->ParseNMEA("$PLARV,1.90,1.96,1284,94*5D", nmea_info));
+  ok1(nmea_info.total_energy_vario_available);
+  ok1(equals(nmea_info.total_energy_vario, 1.9));
+  ok1(nmea_info.pressure_altitude_available);
+  ok1(equals(nmea_info.pressure_altitude, 1284.0));
+  ok1(nmea_info.airspeed_available);
+  ok1(equals(nmea_info.true_airspeed, Units::ToSysUnit(94, Unit::KILOMETER_PER_HOUR)));
+
+  // $PLARW wind
+  ok1(device->ParseNMEA("$PLARW,73,23,A,A*5D", nmea_info));
+  ok1(nmea_info.external_wind_available);
+  ok1(equals(nmea_info.external_wind.bearing, 73.0));
+  ok1(equals(nmea_info.external_wind.norm, Units::ToSysUnit(23, Unit::KILOMETER_PER_HOUR)));
+
+  // $PLARS water ballast, bugs, mc, qnh
+  ok1(device->ParseNMEA("$PLARS,L,BAL,0.331*5C", nmea_info));
+  ok1(nmea_info.settings.ballast_fraction_available);
+  ok1(equals(nmea_info.settings.ballast_fraction, 0.331));
+  ok1(device->ParseNMEA("$PLARS,L,BUGS,8*07", nmea_info));
+  ok1(nmea_info.settings.bugs_available);
+  ok1(equals(nmea_info.settings.bugs, 0.92));
+  ok1(device->ParseNMEA("$PLARS,L,MC,1.8*15", nmea_info));
+  ok1(nmea_info.settings.mac_cready_available);
+  ok1(equals(nmea_info.settings.mac_cready, 1.8));
+  ok1(device->ParseNMEA("$PLARS,L,QNH,1015.0*70", nmea_info));
+  ok1(nmea_info.settings.qnh_available);
+  ok1(equals(nmea_info.settings.qnh.GetHectoPascal(), 1015));
+
+  delete device;
+}
+
+static void
 TestLeonardo()
 {
   NullPort null;
@@ -848,7 +909,7 @@ TestLevilAHRS()
 
 
 static void
-TestLX(const struct DeviceRegister &driver, bool condor=false)
+TestLX(const struct DeviceRegister &driver, bool condor=false, bool reciprocal_wind=false)
 {
   NullPort null;
   Device *device = driver.CreateOnPort(dummy_config, null);
@@ -877,6 +938,7 @@ TestLX(const struct DeviceRegister &driver, bool condor=false)
     ok1(!nmea_info.pressure_altitude_available);
     ok1(nmea_info.baro_altitude_available);
     ok1(equals(nmea_info.baro_altitude, 1266.5));
+    ok1(equals(nmea_info.external_wind.bearing, reciprocal_wind ? 68 : 248));
   } else {
     ok1(nmea_info.pressure_altitude_available);
     ok1(!nmea_info.baro_altitude_available);
@@ -888,8 +950,6 @@ TestLX(const struct DeviceRegister &driver, bool condor=false)
 
   ok1(nmea_info.external_wind_available);
   ok1(equals(nmea_info.external_wind.norm, 23.1 / 3.6));
-  ok1(equals(nmea_info.external_wind.bearing, condor ? 68 : 248));
-
 
   nmea_info.Reset();
   nmea_info.clock = TimeStamp{FloatDuration{1}};
@@ -908,7 +968,7 @@ TestLX(const struct DeviceRegister &driver, bool condor=false)
 
   ok1(nmea_info.external_wind_available);
   ok1(equals(nmea_info.external_wind.norm, 10.1 / 3.6));
-  ok1(equals(nmea_info.external_wind.bearing, condor ? 354 : 174));
+  ok1(equals(nmea_info.external_wind.bearing, reciprocal_wind ? 354 : 174));
 
 
   nmea_info.Reset();
@@ -1035,6 +1095,69 @@ TestLX(const struct DeviceRegister &driver, bool condor=false)
     ok1(nmea_info.settings.qnh_available);
     ok1(equals(nmea_info.settings.qnh.GetHectoPascal(), 1015));
   }
+
+  delete device;
+}
+
+static void
+TestLXEos()
+{
+  NullPort null;
+  Device *device = lx_eos_driver.CreateOnPort(dummy_config, null);
+  ok1(device != NULL);
+
+  NMEAInfo nmea_info;
+  nmea_info.Reset();
+  nmea_info.clock = TimeStamp{FloatDuration{1}};
+
+  ok1(device->ParseNMEA("$LXWP0,N,0.0,262.6,0.01,0.01,0.01,0.01,0.01,0.01,,,259,2.7*54",
+                        nmea_info));
+  
+  // alt_offset is not yet known, baro altitude should be provided
+  ok1(!nmea_info.pressure_altitude_available);
+  ok1(nmea_info.baro_altitude_available);
+  ok1(equals(nmea_info.baro_altitude, 262.6));
+
+  ok1(nmea_info.airspeed_available);
+  ok1(equals(nmea_info.true_airspeed, 0.0));
+  ok1(nmea_info.total_energy_vario_available);
+  ok1(equals(nmea_info.total_energy_vario, 0.01));
+  ok1(nmea_info.external_wind_available);
+  ok1(equals(nmea_info.external_wind.norm, 2.7 / 3.6));
+  ok1(equals(nmea_info.external_wind.bearing, 259));  
+  
+  ok1(device->ParseNMEA("$LXWP1,LX Eos,34949,1.7,1.4*7f", nmea_info));
+  ok1(nmea_info.device.product == "LX Eos");
+  ok1(nmea_info.device.serial == "34949");
+  ok1(nmea_info.device.software_version == "1.7");
+  ok1(nmea_info.device.hardware_version == "1.4");
+
+  ok1(device->ParseNMEA("$LXWP2,1.5,1.11,13,2.96,-3.03,1.35,45*02", nmea_info));
+  ok1(nmea_info.settings.mac_cready_available);
+  ok1(equals(nmea_info.settings.mac_cready, 1.5));
+  ok1(nmea_info.settings.bugs_available);
+  ok1(equals(nmea_info.settings.bugs, 0.87));
+  // Ballast won't be available, because driver doesn't know the polar
+
+  ok1(device->ParseNMEA("$LXWP3,105,2,5.0,0,29,20,10.0,1.3,1,120,0,KA6e,0*70", nmea_info));
+  ok1(nmea_info.settings.qnh_available);
+  ok1(equals(nmea_info.settings.qnh.GetHectoPascal(), 1017));
+
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$LXWP0,N,0.0,260,,,,,,,,,,*5b",
+                        nmea_info));
+  // alt_offset and device type is known, pressure altitude should be provided
+  ok1(nmea_info.pressure_altitude_available);
+  ok1(!nmea_info.baro_altitude_available);
+  ok1(equals(nmea_info.pressure_altitude, 260 - 32));
+
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$LXWP1,LX Era,34949,1.5,1.4*72", nmea_info));
+  ok1(device->ParseNMEA("$LXWP0,N,0.0,260,,,,,,,,,,*5B",
+                        nmea_info));
+  // alt_offset is known, but device with firmware bug is connected, providing baro altitude
+  ok1(!nmea_info.pressure_altitude_available);
+  ok1(nmea_info.baro_altitude_available);
 
   delete device;
 }
@@ -1622,8 +1745,7 @@ TestFlightList(const struct DeviceRegister &driver)
 
 int main()
 {
-  plan_tests(843);
-
+  plan_tests(946);
   TestGeneric();
   TestTasman();
   TestFLARM();
@@ -1635,10 +1757,13 @@ int main()
   TestEye();
   TestFlymasterF1();
   TestFlytec();
+  TestLarus();
   TestLeonardo();
   TestLevilAHRS();
   TestLX(lx_driver);
-  TestLX(condor_driver, true);
+  TestLX(condor_driver, true, true);
+  TestLX(condor3_driver, true, false);
+  TestLXEos();
   TestLXV7();
   TestILEC();
   TestOpenVario();
@@ -1658,6 +1783,7 @@ int main()
   TestDeclare(ew_microrecorder_driver);
   TestDeclare(posigraph_driver);
   TestDeclare(lx_driver);
+  TestDeclare(lx_eos_driver);
   TestDeclare(imi_driver);
   TestDeclare(flarm_driver);
   //TestDeclare(vega_driver);
@@ -1667,6 +1793,7 @@ int main()
 
   TestFlightList(cai302_driver);
   TestFlightList(lx_driver);
+  TestFlightList(lx_eos_driver);
   TestFlightList(imi_driver);
 
   return exit_status();
