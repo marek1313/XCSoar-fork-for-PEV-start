@@ -3,7 +3,7 @@
           package="org.xcsoarpev"
           android:installLocation="auto"
           android:versionCode="168"
-          android:versionName="7.42">
+          android:versionName="7.44">
   <application
       android:requestLegacyExternalStorage="true"
       android:preserveLegacyExternalStorage="true"
