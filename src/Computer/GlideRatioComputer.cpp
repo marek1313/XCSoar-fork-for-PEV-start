@@ -34,7 +34,8 @@ GlideRatioComputer::Compute(const MoreData &basic,
 
     last_location = basic.location;
     last_location_available = basic.location_available;
-    last_altitude = basic.nav_altitude;
+    last_altitude = basic.TE_altitude;
+
     return;
   }
 
@@ -46,7 +47,7 @@ GlideRatioComputer::Compute(const MoreData &basic,
   // Glide ratio over ground
   vario_info.gr =
     UpdateGR(vario_info.gr, DistanceFlown,
-             last_altitude - basic.nav_altitude, 0.1);
+             last_altitude - basic.TE_altitude, 0.1);
 
   if (calculated.flight.flying && !calculated.circling) {
     if (!gr_calculator_initialised) {
@@ -54,12 +55,12 @@ GlideRatioComputer::Compute(const MoreData &basic,
       gr_calculator.Initialize(settings);
     }
 
-    gr_calculator.Add((int)DistanceFlown, (int)basic.nav_altitude);
+    gr_calculator.Add((int)DistanceFlown, (int)basic.TE_altitude);
     vario_info.average_gr = gr_calculator.Calculate();
   } else
     gr_calculator_initialised = false;
 
   last_location = basic.location;
   last_location_available = basic.location_available;
-  last_altitude = basic.nav_altitude;
+  last_altitude = basic.TE_altitude;
 }
