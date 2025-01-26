@@ -77,6 +77,7 @@ GlideRatioCalculator::Add(unsigned distance, int altitude)
   totaldistance += distance;
   records[start].distance = distance;
   records[start].altitude = altitude;
+
 }
 
 /*
@@ -104,6 +105,7 @@ GlideRatioCalculator::Calculate() const
   }
 
   altdiff = records[bcold].altitude - records[start].altitude;
+ 
   if (altdiff == 0)
     return INVALID_GR; // infinitum
 
