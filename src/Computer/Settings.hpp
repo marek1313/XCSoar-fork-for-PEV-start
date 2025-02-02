@@ -188,6 +188,10 @@ enum AverageEffTime {
   ae3minutes,
 };
 
+enum EffAltitude {
+  navaltitude,
+  tealtitude,
+};
 struct ComputerSettings {
   WindSettings wind;
 
@@ -204,6 +208,8 @@ struct ComputerSettings {
   WaveSettings wave;
 
   AverageEffTime average_eff_time;
+
+  EffAltitude eff_altitude;
 
   /** Update system time from GPS time */
   bool set_system_time_from_gps;
