@@ -52,7 +52,7 @@ GlideRatioCalculator::Initialize(const ComputerSettings &settings)
 }
 
 void
-GlideRatioCalculator::Add(unsigned distance, int altitude)
+GlideRatioCalculator::Add(unsigned distance, int altitude, int te_altitude)
 {
   static short errs = 0;
 
@@ -77,6 +77,7 @@ GlideRatioCalculator::Add(unsigned distance, int altitude)
   totaldistance += distance;
   records[start].distance = distance;
   records[start].altitude = altitude;
+  records[start].te_altitude = te_altitude;
 
 }
 
@@ -84,7 +85,7 @@ GlideRatioCalculator::Add(unsigned distance, int altitude)
  * returns 0 if invalid, 999 if too high
  */
 double
-GlideRatioCalculator::Calculate() const
+GlideRatioCalculator::Calculate(bool use_te) const
 {
   int altdiff;
   short bcold;
@@ -103,8 +104,10 @@ GlideRatioCalculator::Calculate() const
     else
       bcold = 0;
   }
-
-  altdiff = records[bcold].altitude - records[start].altitude;
+  if (use_te && records[bcold].te_altitude>0 && records[start].te_altitude>0)
+    altdiff = records[bcold].altitude - records[start].altitude;
+  else
+   altdiff = records[bcold].te_altitude - records[start].te_altitude;
  
   if (altdiff == 0)
     return INVALID_GR; // infinitum

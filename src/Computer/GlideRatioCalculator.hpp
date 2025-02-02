@@ -11,6 +11,7 @@ class GlideRatioCalculator {
   struct Record {
     unsigned distance;
     int altitude;
+    int te_altitude;
   };
 
   /**
@@ -34,8 +35,8 @@ class GlideRatioCalculator {
 
 public:
   void Initialize(const ComputerSettings &settings);
-  void Add(unsigned distance, int altitude);
-  double Calculate() const;
+  void Add(unsigned distance, int altitude, int TE_altitude);
+  double Calculate(bool use_te) const;
 };
 
 // methods using low-pass filter

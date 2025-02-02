@@ -18,6 +18,7 @@ class GlideRatioComputer {
 
   GeoPoint last_location;
   double last_altitude;
+  double last_te_altitude;
   Validity last_location_available;
 
 public:

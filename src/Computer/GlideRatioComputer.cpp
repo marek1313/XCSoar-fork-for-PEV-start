@@ -4,6 +4,7 @@
 #include "GlideRatioComputer.hpp"
 #include "NMEA/MoreData.hpp"
 #include "NMEA/Derived.hpp"
+#include "Settings.hpp"
 
 void
 GlideRatioComputer::Reset()
@@ -34,7 +35,8 @@ GlideRatioComputer::Compute(const MoreData &basic,
 
     last_location = basic.location;
     last_location_available = basic.location_available;
-    last_altitude = basic.TE_altitude;
+    last_altitude = basic.nav_altitude;
+    last_te_altitude = basic.TE_altitude;
 
     return;
   }
@@ -45,9 +47,13 @@ GlideRatioComputer::Compute(const MoreData &basic,
   auto DistanceFlown = basic.location.DistanceS(last_location);
 
   // Glide ratio over ground
-  vario_info.gr =
-    UpdateGR(vario_info.gr, DistanceFlown,
-             last_altitude - basic.TE_altitude, 0.1);
+  if (basic.TE_altitude>0 && settings.eff_altitude==tealtitude && last_te_altitude>0)
+   vario_info.gr = UpdateGR(vario_info.gr, DistanceFlown,
+             last_te_altitude - basic.TE_altitude, 0.1);
+  else
+    vario_info.gr =
+        UpdateGR(vario_info.gr, DistanceFlown,
+                last_altitude - basic.nav_altitude, 0.1); 
 
   if (calculated.flight.flying && !calculated.circling) {
     if (!gr_calculator_initialised) {
@@ -55,12 +61,14 @@ GlideRatioComputer::Compute(const MoreData &basic,
       gr_calculator.Initialize(settings);
     }
 
-    gr_calculator.Add((int)DistanceFlown, (int)basic.TE_altitude);
-    vario_info.average_gr = gr_calculator.Calculate();
+    gr_calculator.Add((int)DistanceFlown, (int)basic.nav_altitude,(int)basic.TE_altitude);
+    vario_info.average_gr = gr_calculator.Calculate(settings.eff_altitude==tealtitude);
   } else
     gr_calculator_initialised = false;
 
   last_location = basic.location;
   last_location_available = basic.location_available;
-  last_altitude = basic.TE_altitude;
+  last_altitude = basic.nav_altitude;
+  last_te_altitude = basic.TE_altitude;
 }
+                            
