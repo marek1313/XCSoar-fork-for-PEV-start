@@ -15,6 +15,7 @@ else ifeq ($(TARGET_IS_DARWIN),y)
 EGL = n
 else ifneq ($(HAVE_WIN32)$(TARGET_IS_KOBO),nn)
 # Windows uses GDI
+# Mac OS X and iOS use SDL
 # Kobo uses software renderer on /dev/fb0
 EGL = n
 else ifeq ($(OPENGL),n)

@@ -51,8 +51,13 @@ TextInBoxMoveInView(PixelRect &rc, const PixelRect &map_rc) noexcept
   return offset;
 }
 
+<<<<<<< HEAD
 void
 RenderShadowedText(Canvas &canvas, const char *text,
+=======
+static void
+RenderShadowedText(Canvas &canvas, const TCHAR *text,
+>>>>>>> Revert "Merge pull request #3 from XCSoar/master"
                    PixelPoint p,
                    bool inverted) noexcept
 {

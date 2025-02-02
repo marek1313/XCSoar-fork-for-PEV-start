@@ -5,28 +5,28 @@ Index: boost_1_90_0/boost/json/impl/parse.ipp
 @@ -15,7 +15,9 @@
  #include <boost/json/parser.hpp>
  #include <boost/json/detail/except.hpp>
-
+ 
 +#ifdef ENABLE_IOSTREAM
  #include <istream>
 +#endif // ENABLE_IOSTREAM
-
+ 
  namespace boost {
  namespace json {
 @@ -64,6 +66,8 @@ parse(
      return jv;
  }
-
+ 
 +#ifdef ENABLE_IOSTREAM
 +
  value
  parse(
      std::istream& is,
-@@ -129,6 +133,7 @@ parse(
-         detail::throw_system_error( ec );
+@@ -130,6 +134,8 @@ parse(
      return jv;
  }
+ 
 +#endif // ENABLE_IOSTREAM
-
++
  } // namespace json
  } // namespace boost
 
@@ -38,24 +38,22 @@ Index: boost_1_90_0/boost/json/impl/value.ipp
  #include <boost/json/value.hpp>
  #include <boost/json/parser.hpp>
  #include <cstring>
--#include <istream>
--#include <limits>
 +#ifdef ENABLE_IOSTREAM
-+ #include <istream>
-+#endif // ENABLE_IOSTREAM#include <limits>
+ #include <istream>
++#endif // ENABLE_IOSTREAM
+ #include <limits>
  #include <new>
  #include <utility>
-
-@@ -687,6 +688,8 @@ swap(value& other)
+@@ -416,6 +418,8 @@ swap(value& other)
      ::new(this) value(pilfer(temp2));
  }
-
+ 
 +#ifdef ENABLE_IOSTREAM
 +
  std::istream&
  operator>>(
      std::istream& is,
-@@ -798,6 +801,8 @@ operator>>(
+@@ -527,6 +531,8 @@ operator>>(
      return is;
  }
  
@@ -70,27 +68,45 @@ Index: boost_1_90_0/boost/json/impl/serialize.ipp
 --- boost_1_90_0.orig/boost/json/impl/serialize.ipp
 +++ boost_1_90_0/boost/json/impl/serialize.ipp
 @@ -12,11 +12,15 @@
-
+ 
  #include <boost/json/serialize.hpp>
  #include <boost/json/serializer.hpp>
 +#ifdef ENABLE_IOSTREAM
  #include <ostream>
 +#endif // ENABLE_IOSTREAM
-
+ 
  namespace boost {
  namespace json {
-
+ 
 +#ifdef ENABLE_IOSTREAM
 +
  namespace {
-
+ 
  int serialize_xalloc = std::ios::xalloc();
-@@ -255,6 +259,7 @@ operator<<( std::ostream& os, serialize_options const& opts )
-     os.iword(serialize_xalloc) = to_bitmask(opts);
+@@ -50,6 +54,8 @@ get_stream_flags( std::ostream& os )
+ 
+ } // namespace
+ 
++#endif // ENABLE_IOSTREAM
++
+ static
+ void
+ serialize_impl(
+@@ -173,6 +179,8 @@ serialize(
+ 
+ //----------------------------------------------------------
+ 
++#ifdef ENABLE_IOSTREAM
++
+ //[example_operator_lt__lt_
+ // Serialize a value into an output stream
+ 
+@@ -253,6 +261,8 @@ operator<<( std::ostream& os, serialize_
      return os;
  }
+ 
 +#endif // ENABLE_IOSTREAM
-
++
  } // namespace json
  } // namespace boost
 
@@ -105,13 +121,13 @@ Index: boost_1_90_0/boost/json/impl/kind.ipp
 +#ifdef ENABLE_IOSTREAM
  #include <ostream>
 +#endif // ENABLE_IOSTREAM
-
+ 
  namespace boost {
  namespace json {
 @@ -33,6 +35,8 @@ to_string(kind k) noexcept
      }
  }
-
+ 
 +#ifdef ENABLE_IOSTREAM
 +
  std::ostream&
@@ -120,7 +136,7 @@ Index: boost_1_90_0/boost/json/impl/kind.ipp
 @@ -40,6 +44,8 @@ operator<<(std::ostream& os, kind k)
      return os;
  }
-
+ 
 +#endif // ENABLE_IOSTREAM
 +
  } // namespace json
@@ -136,8 +152,8 @@ Index: boost_1_90_0/boost/json/impl/string.ipp
  #include <new>
 +#ifdef ENABLE_IOSTREAM
  #include <ostream>
--#include <stdexcept>
-+#endif // ENABLE_IOSTREAM#include <stdexcept>
++#endif // ENABLE_IOSTREAM
+ #include <stdexcept>
  #include <string>
  #include <utility>
 
@@ -151,16 +167,14 @@ Index: boost_1_90_0/boost/system/detail/error_code.hpp
  #include <boost/config/workaround.hpp>
 +#ifdef ENABLE_IOSTREAM
  #include <ostream>
--#include <new>
-+#endif // ENABLE_IOSTREAM#include <new>
++#endif // ENABLE_IOSTREAM
+ #include <new>
  #include <cstdio>
- #include <system_error>
-
-@@ -562,13 +563,14 @@ public:
-             return r;
+ 
+@@ -628,12 +630,14 @@ public:
          }
      }
--
+ 
 +#ifdef ENABLE_IOSTREAM
      template<class Ch, class Tr>
          inline friend std::basic_ostream<Ch, Tr>&
@@ -205,6 +219,7 @@ Index: boost_1_90_0/boost/range/detail/range_return.hpp
 --- boost_1_90_0.orig/boost/range/detail/range_return.hpp
 +++ boost_1_90_0/boost/range/detail/range_return.hpp
 @@ -11,7 +11,7 @@
+ 
  #include <boost/range/begin.hpp>
  #include <boost/range/end.hpp>
 -#include <boost/range/iterator_range.hpp>
@@ -212,3 +227,16 @@ Index: boost_1_90_0/boost/range/detail/range_return.hpp
  #include <boost/next_prior.hpp>
  
  namespace boost
+Index: boost_1_85_0/boost/json/impl/serializer.ipp
+===================================================================
+--- boost_1_85_0.orig/boost/json/impl/serializer.ipp
++++ boost_1_85_0/boost/json/impl/serializer.ipp
+@@ -13,7 +13,7 @@
+ #include <boost/json/serializer.hpp>
+ #include <boost/json/detail/format.hpp>
+ #include <boost/json/detail/sse2.hpp>
+-#include <ostream>
++//#include <ostream>
+ 
+ #ifdef _MSC_VER
+ #pragma warning(push)

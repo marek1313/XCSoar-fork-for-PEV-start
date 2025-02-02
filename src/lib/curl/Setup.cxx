@@ -60,6 +60,7 @@ Setup(CurlEasy &easy)
 	easy.SetOption(CURLOPT_HTTPAUTH, (long) CURLAUTH_ANY);
 
 #ifdef ANDROID
+<<<<<<< HEAD
 	/* Use Android's system CA certificates for SSL validation */
 	const auto ca_path = GetCaCertificatesPath();
 	if (ca_path != nullptr) {
@@ -70,6 +71,12 @@ Setup(CurlEasy &easy)
 		easy.SetVerifyHost(false);
 		easy.SetVerifyPeer(false);
 	}
+=======
+	/* this is disabled until we figure out how to use Android's
+	   CA certificates with libcurl */
+	easy.SetVerifyHost(false);
+	easy.SetVerifyPeer(false);
+>>>>>>> Revert "Merge pull request #3 from XCSoar/master"
 #endif
 
 #ifdef KOBO

@@ -12,8 +12,11 @@
 #include "Language/Language.hpp"
 #include "util/Macros.hpp"
 #include "Look/FlarmTrafficLook.hpp"
+<<<<<<< HEAD
 #include "Renderer/TextInBox.hpp"
 #include "Interface.hpp"
+=======
+>>>>>>> Revert "Merge pull request #3 from XCSoar/master"
 
 #include <algorithm>
 
@@ -475,6 +478,14 @@ FlarmTrafficWindow::PaintRadarTarget(Canvas &canvas,
     sc[i].y - int(sz.height / 2),
   };
 
+<<<<<<< HEAD
+=======
+  // Draw vertical speed shadow
+  canvas.SetTextColor(COLOR_WHITE);
+  canvas.DrawText({tp.x + 1, tp.y + 1}, tmp);
+  canvas.DrawText({tp.y - 1, tp.y - 1}, tmp);
+
+>>>>>>> Revert "Merge pull request #3 from XCSoar/master"
   // Select color
   canvas.SetTextColor(*text_color);
 

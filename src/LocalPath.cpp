@@ -44,6 +44,11 @@
 #include <unistd.h>
 #endif
 
+<<<<<<< HEAD
+=======
+#define XCSDATADIR "XCSoarData"
+
+>>>>>>> Revert "Merge pull request #3 from XCSoar/master"
 /**
  * This is the partition that the Kobo software mounts on PCs
  */
@@ -283,13 +288,21 @@ FindDataPaths() noexcept
   /* on Unix, use ~/.<product_name> */
   if (const char *home = getenv("HOME"); home != nullptr) {
 #ifdef __APPLE__
-    /* macOS users are not used to dot-files in their home
+    /* Mac OS X users are not used to dot-files in their home
        directory - make it a little bit easier for them to find the
        files.  If target is an iOS device, use the already existing
        "Documents" folder inside the application's sandbox.  This
        folder can also be accessed via iTunes, if
        UIFileSharingEnabled is set to YES in Info.plist */
+<<<<<<< HEAD
     const Path in_home = Apple::GetDataPathInHome();
+=======
+#if (TARGET_OS_IPHONE)
+    constexpr const char *in_home = "Documents" XCSDATADIR;
+#else
+    constexpr const char *in_home = XCSDATADIR;
+#endif
+>>>>>>> Revert "Merge pull request #3 from XCSoar/master"
 #else // !APPLE
     constexpr const char *in_home = PRODUCT_UNIX_HOME_DIR;
 #endif
@@ -309,9 +322,15 @@ FindDataPaths() noexcept
   }
 
 #ifndef __APPLE__
+<<<<<<< HEAD
   /* Linux (and others): allow global configuration in /etc/<product_name> */
   if (Directory::Exists(Path{PRODUCT_UNIX_SYSCONF_DIR}))
     result.emplace_back(Path{PRODUCT_UNIX_SYSCONF_DIR});
+=======
+  /* Linux (and others): allow global configuration in /etc/xcsoar */
+  if (Directory::Exists(Path{"/etc/xcsoar"}))
+    result.emplace_back(Path{"/etc/xcsoar"});
+>>>>>>> Revert "Merge pull request #3 from XCSoar/master"
 #endif // !APPLE
 #endif // HAVE_POSIX
 
