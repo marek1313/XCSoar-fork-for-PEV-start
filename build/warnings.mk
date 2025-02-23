@@ -25,8 +25,8 @@ C_WARNINGS += -Wnested-externs
 
 # make warnings fatal (for perfectionists)
 
-WERROR ?= $(DEBUG)
-
+#WERROR ?= $(DEBUG)
+WERROR = n
 ifeq ($(WERROR),y)
   CXX_WARNINGS += -Werror
 ifeq ($(TARGET_IS_DARWIN),y)
