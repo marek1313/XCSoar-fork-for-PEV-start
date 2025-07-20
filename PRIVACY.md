@@ -11,7 +11,9 @@ information, and what options you have for controlling this.
 For the protection of the XCSoar and other users, if you do not agree with this
 Privacy Policy, you may not use the application.
 Application published at Google Play is a fork, for which all of the following apply. 
-You can contact publisher via: mailto:support@mikesierra.fun
+You can contact publisher [MikeSierra]
+
+[MikeSierra]: mailto:support@mikesierra.fun
 
 ## Community development
 
