@@ -79,6 +79,14 @@ Internationale Gliding Commission standard log file, short (IGC).
 This happens offline and unless you share this file from your device, your
 location data is not sent anywhere.
 
+### Location in the background on Android
+
+The application requests permission to access location when working in the background.
+Location in crucial to register continuous position log files while in flight. Otherwise switching to 
+another app (as users sometimes do) would cause a gap in the log and dirsupts flight statistics.
+Location data is not sent anywhere and is only store in local files on
+your Android device.
+
 ## When We May Share Your Information
 
 ### With Your Permission
