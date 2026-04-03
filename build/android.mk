@@ -460,7 +460,7 @@ $(ANDROID_BUILD)/unsigned.apk: $(ANDROID_OUTPUT_DIR)/classes.dex $(ANDROID_OUTPU
 .DELETE_ON_ERROR: $(ANDROID_BUILD)/aligned.apk
 $(ANDROID_BUILD)/aligned.apk: $(ANDROID_BUILD)/unsigned.apk
 	@$(NQ)echo "  ALIGN   $@"
-	$(Q)$(ZIPALIGN) -f 8 $< $@
+	$(Q)$(ZIPALIGN) -P 16 -f 8 $< $@
 
 # Generate ~/.android/debug.keystore, if it does not exists, as the official
 # Android build tools do it:

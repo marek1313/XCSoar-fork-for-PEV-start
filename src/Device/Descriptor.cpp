@@ -35,7 +35,7 @@
 #include "java/Closeable.hxx"
 #include "java/Global.hxx"
 #include "Android/InternalSensors.hpp"
-#include "android/Sensor.hpp"
+#include "Android/Sensor.hpp"
 #endif
 
 #ifdef __APPLE__
