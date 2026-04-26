@@ -1,26 +1,10 @@
 # <img src="./Data/graphics/logo.svg" width="5%" alt="XCSoar Logo"> XCSoar
 
 <p>
-<a href="https://f-droid.org/packages/org.xcsoar/"><img
-src="Data/badges/android-f-droid-padded.svg" alt="F-Droid"
-height="56"></a>
-<a href="https://play.google.com/store/apps/details?id=org.xcsoar.play"><img
+<a href="https://play.google.com/store/apps/details?id=org.xcsoarpev"><img
 src="Data/badges/android-google-play-padded.svg" alt="Google Play"
 height="56"></a>
-<a href="https://apps.apple.com/app/xcsoar/id6741046464"><img
-src="Data/badges/apple-app-store-padded.svg" alt="App Store"
-height="56"></a>
-<a href="https://download.xcsoar.org/releases/latest/WIN64/"><img
-src="Data/badges/windows-microsoft-store-padded.svg"
-alt="Windows Download" height="56"></a>
-<a href="https://download.xcsoar.org/releases/latest/DEBIAN/"><img
-src="Data/badges/linux-debian-padded.svg" alt="Debian Download"
-height="56"></a>
 </p>
-
-[![.github/workflows/build-native.yml](https://github.com/XCSoar/XCSoar/actions/workflows/build-native.yml/badge.svg)](https://github.com/XCSoar/XCSoar/actions/workflows/build-native.yml)
-[![.github/workflows/build-container.yml](https://github.com/XCSoar/XCSoar/actions/workflows/build-container.yml/badge.svg)](https://github.com/XCSoar/XCSoar/actions/workflows/build-container.yml)
-[![.github/workflows/build-docs.yml](https://github.com/XCSoar/XCSoar/actions/workflows/build-docs.yml/badge.svg)](https://github.com/XCSoar/XCSoar/actions/workflows/build-docs.yml)
 
 This fork is meant to be maintained only for the functionality of start at PEV functionality. For any other contribution, bugfixing, discussions etc. please follow original repository and project at www.xcsoar.org.
 
