@@ -22,6 +22,8 @@ height="56"></a>
 [![.github/workflows/build-container.yml](https://github.com/XCSoar/XCSoar/actions/workflows/build-container.yml/badge.svg)](https://github.com/XCSoar/XCSoar/actions/workflows/build-container.yml)
 [![.github/workflows/build-docs.yml](https://github.com/XCSoar/XCSoar/actions/workflows/build-docs.yml/badge.svg)](https://github.com/XCSoar/XCSoar/actions/workflows/build-docs.yml)
 
+This fork is meant to be maintained only for the functionality of start at PEV functionality. For any other contribution, bugfixing, discussions etc. please follow original repository and project at www.xcsoar.org.
+
 **XCSoar** is a tactical glide computer for glider pilots. Free and open-source. No ads. No tracking. Runs on Android, iOS, Linux, macOS, and Windows. Developed with love by the [open-source community](https://xcsoar.org/develop/).
 
 ## Features
